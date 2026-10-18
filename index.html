@@ -46,7 +46,7 @@
         </div>
         <div>
           <h1 id="header-app-title" class="text-base sm:text-lg font-bold leading-tight">Pemilu Raya MTs Al Ishlah Panambangan 2026</h1>
-          <p class="text-xs text-teal-200">Portal E-Voting Digital Mandiri</p>
+          <p class="text-xs text-teal-200">Portal E-Voting Digital Mandiri (Cloud Realtime)</p>
         </div>
       </div>
 
@@ -69,6 +69,11 @@
 
   <!-- Main Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- Loading Indicator Cloud -->
+    <div id="cloud-loading-bar" class="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white text-[11px] font-bold text-center py-1 transition-all">
+      <i class="fa-solid fa-sync fa-spin mr-1"></i> Menghubungkan ke Database Cloud Firebase...
+    </div>
 
     <!-- ==================== TAB 1: BILIK SUARA (VOTER) ==================== -->
     <section id="sec-voter" class="space-y-6">
@@ -106,7 +111,7 @@
             <div class="text-xs text-slate-500">Silakan tentukan pilihan Anda pada setiap kategori surat suara di bawah ini.</div>
           </div>
           <div class="flex items-center gap-2 text-xs bg-teal-200/60 text-slate-800 px-3 py-1.5 rounded-full font-mono font-semibold">
-            <i class="fa-solid fa-shield-halved text-custom-teal"></i> Sesi Pemilihan Digital
+            <i class="fa-solid fa-cloud text-custom-teal"></i> Sesi Cloud Terhubung
           </div>
         </div>
 
@@ -127,18 +132,18 @@
 
     </section>
 
-    <!-- ==================== TAB 2: HASIL SUARA (RESULTS) ==================== -->
+    <!-- ==================== TAB 2: HASIL SUARA (RESULTS PUBLIC) ==================== -->
     <section id="sec-results" class="hidden space-y-6">
       
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
         <div>
           <h2 class="text-2xl font-bold text-slate-900">Hasil Perolehan Suara</h2>
-          <p class="text-sm text-slate-500">Perhitungan suara masuk secara real-time dari seluruh bilik suara digital.</p>
+          <p class="text-sm text-slate-500">Perhitungan suara masuk dan statistik partisipasi secara real-time.</p>
         </div>
         <div class="flex items-center gap-3">
-          <button onclick="renderResults()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-            <i class="fa-solid fa-rotate-right"></i> Perbarui Data
-          </button>
+          <span class="px-3 py-1.5 bg-teal-100 text-custom-teal rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt"></i> Live Realtime Cloud
+          </span>
           <span id="results-status-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
             Pemilu Aktif
           </span>
@@ -196,17 +201,17 @@
         <!-- Dashboard Top Header -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <span class="text-xs font-bold text-custom-teal uppercase tracking-wider">Panel Kontrol Utama</span>
+            <span class="text-xs font-bold text-custom-teal uppercase tracking-wider">Panel Kontrol Utama Cloud</span>
             <h2 class="text-2xl font-bold text-slate-900">Dashboard Pengelola Pemilu</h2>
           </div>
           <div class="flex gap-2">
             <button onclick="requestResetAllData()" class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
-              <i class="fa-solid fa-trash-arrow-up"></i> Reset Data
+              <i class="fa-solid fa-trash-arrow-up"></i> Reset Data Cloud
             </button>
           </div>
         </div>
 
-        <!-- Admin Sub-Navigation (4 Menus) -->
+        <!-- Admin Sub-Navigation (5 Menus) -->
         <div class="flex border-b border-slate-200 overflow-x-auto bg-white rounded-xl shadow-sm p-1.5 gap-1">
           <button onclick="switchAdminMenu('setting')" id="admin-menu-btn-setting" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2">
             <i class="fa-solid fa-sliders"></i> 1. Setting Umum
@@ -220,9 +225,12 @@
           <button onclick="switchAdminMenu('voters')" id="admin-menu-btn-voters" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
             <i class="fa-solid fa-users"></i> 4. Voters
           </button>
+          <button onclick="switchAdminMenu('live')" id="admin-menu-btn-live" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+            <i class="fa-solid fa-chart-line"></i> 5. Hasil Sementara
+          </button>
         </div>
 
-        <!-- MENU 1: SETTING -->
+        <!-- MENU 1: SETTING & AKUN ADMIN -->
         <div id="admin-sub-setting" class="admin-sub-page bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
           <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Pengaturan Umum Pemilihan</h3>
           
@@ -235,7 +243,7 @@
             <div class="space-y-3 pt-2">
               <label class="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" id="setting-hide-results" class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500">
-                <span class="text-sm font-medium text-slate-700">Sembunyikan hasil perolehan suara selama pemilu berlangsung</span>
+                <span class="text-sm font-medium text-slate-700">Sembunyikan hasil perolehan suara selama pemilu berlangsung (Publik)</span>
               </label>
 
               <label class="flex items-center gap-3 cursor-pointer">
@@ -245,9 +253,29 @@
             </div>
 
             <button type="submit" class="px-5 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm shadow transition">
-              <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pengaturan
+              <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pengaturan Ke Cloud
             </button>
           </form>
+
+          <!-- UBAH USERNAME & PASSWORD ADMIN -->
+          <div class="border-t pt-6 space-y-4 max-w-xl">
+            <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Ubah Username & Password Admin</h3>
+            <form onsubmit="saveAdminAccount(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username Admin Baru</label>
+                <input type="text" id="setting-admin-user" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password Admin Baru</label>
+                <input type="password" id="setting-admin-pass" required placeholder="Minimal 6 Karakter" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+              </div>
+
+              <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-sm shadow transition">
+                <i class="fa-solid fa-key mr-1"></i> Perbarui Akun Admin
+              </button>
+            </form>
+          </div>
         </div>
 
         <!-- MENU 2: TANGGAL DAN JAM -->
@@ -268,7 +296,7 @@
             </div>
 
             <button type="submit" class="px-5 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm shadow transition">
-              <i class="fa-solid fa-clock-rotate-left mr-1"></i> Simpan Jadwal
+              <i class="fa-solid fa-clock-rotate-left mr-1"></i> Simpan Jadwal Ke Cloud
             </button>
           </form>
         </div>
@@ -361,6 +389,23 @@
 
         </div>
 
+        <!-- MENU 5: HASIL SEMENTARA ADMIN (KHUSUS PANITIA) -->
+        <div id="admin-sub-live" class="admin-sub-page hidden space-y-6">
+          <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between gap-4">
+            <div>
+              <h3 class="text-base font-bold text-amber-900">Pemantauan Progres Perolehan Suara (Internal Admin)</h3>
+              <p class="text-xs text-amber-700">Halaman ini khusus untuk panitia. Tetap bisa melihat grafik perolehan suara real-time meskipun hasil di halaman publik disembunyikan.</p>
+            </div>
+            <span class="px-3 py-1 bg-amber-200 text-amber-900 font-bold text-xs rounded-full whitespace-nowrap">
+              <i class="fa-solid fa-eye"></i> Mode Internal Panitia
+            </span>
+          </div>
+
+          <div id="admin-live-results-container" class="space-y-8">
+            <!-- Dynamic Content Hasil Sementara Admin -->
+          </div>
+        </div>
+
       </div>
 
     </section>
@@ -388,7 +433,7 @@
     </div>
   </div>
 
-  <!-- MODAL KONFIRMASI CUSTOM (PENGGANTI POPUP CONFIRM BROWSER DI GOOGLE SITES) -->
+  <!-- MODAL KONFIRMASI CUSTOM -->
   <div id="modal-confirm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white max-w-sm w-full rounded-2xl shadow-xl p-6 text-center space-y-4">
       <div id="modal-confirm-icon" class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
@@ -417,11 +462,69 @@
       <img id="logo-pmr-footer" src="" alt="PMR" class="h-10 w-auto object-contain transition hover:scale-110" title="PMR">
     </div>
     <div class="text-slate-400">
-      Pemilu Raya MTs Al Ishlah Panambangan &copy; 2026 - Aplikasi Pemilihan Digital
+      Pemilu Raya MTs Al Ishlah Panambangan &copy; 2026 - Aplikasi Pemilihan Digital (Cloud Database)
     </div>
   </footer>
 
-  <!-- JS Logic -->
+  <!-- Firebase SDK v10 (Realtime Database) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWjIOIXCtsMxuWq50vl1P6qLQUTextljI",
+      authDomain: "evoting-mts-alishlah.firebaseapp.com",
+      databaseURL: "https://evoting-mts-alishlah-default-rtdb.firebaseio.com",
+      projectId: "evoting-mts-alishlah",
+      storageBucket: "evoting-mts-alishlah.firebasestorage.app",
+      messagingSenderId: "498918096822",
+      appId: "1:498918096822:web:c4f245a30d945b85ed0b17",
+      measurementId: "G-RE1QC8B3FH"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'evoting_db');
+
+    // Global Cloud State
+    window.cloudData = null;
+    window.saveCloudData = function(data) {
+      set(dbRef, data);
+    };
+
+    // Realtime Sync Listener
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      
+      // Hide loading bar once connected
+      const loadingBar = document.getElementById('cloud-loading-bar');
+      if (loadingBar) {
+        loadingBar.classList.add('bg-emerald-600');
+        loadingBar.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Terhubung ke Cloud Firebase! Data Realtime Aktif.`;
+        setTimeout(() => { loadingBar.style.display = 'none'; }, 2000);
+      }
+
+      if (!data) {
+        // Initialize Default Database in Firebase
+        set(dbRef, window.DEFAULT_DATA);
+      } else {
+        window.cloudData = data;
+        
+        // Auto-refresh active UI components across all connected clients
+        window.updateHeaderTitle();
+        window.renderResults();
+        
+        const adminDashboard = document.getElementById('admin-dashboard');
+        if (adminDashboard && !adminDashboard.classList.contains('hidden')) {
+          window.loadAdminData();
+        }
+      }
+    });
+  </script>
+
+  <!-- Main Application Logic -->
   <script>
     // ==================== LOGO ASSET MAP ====================
     const LOGOS = {
@@ -453,8 +556,12 @@
       document.getElementById('logo-pmr-footer').src = LOGOS.pmr;
     }
 
-    // ==================== INITIAL DATA & STORAGE MANAGEMENT ====================
-    const DEFAULT_DATA = {
+    // ==================== DEFAULT SEED DATA ====================
+    window.DEFAULT_DATA = {
+      adminAuth: {
+        username: "admin",
+        password: "password123"
+      },
       settings: {
         title: "Pemilu Raya MTs Al Ishlah Panambangan 2026",
         hideResults: false,
@@ -487,17 +594,13 @@
     };
 
     function getData() {
-      const store = localStorage.getItem('evoting_db');
-      if (!store) {
-        localStorage.setItem('evoting_db', JSON.stringify(DEFAULT_DATA));
-        return DEFAULT_DATA;
-      }
-      return JSON.parse(store);
+      return window.cloudData || window.DEFAULT_DATA;
     }
 
     function saveData(data) {
-      localStorage.setItem('evoting_db', JSON.stringify(data));
-      updateHeaderTitle();
+      if (window.saveCloudData) {
+        window.saveCloudData(data);
+      }
     }
 
     // ==================== STATE MANAGEMENT ====================
@@ -515,7 +618,7 @@
 
     function updateHeaderTitle() {
       const db = getData();
-      document.getElementById('header-app-title').innerText = db.settings.title || "Pemilu Raya MTs Al Ishlah Panambangan 2026";
+      document.getElementById('header-app-title').innerText = (db.settings && db.settings.title) || "Pemilu Raya MTs Al Ishlah Panambangan 2026";
     }
 
     // ==================== CUSTOM MODAL DIALOGS ====================
@@ -586,7 +689,7 @@
         return;
       }
 
-      const voter = db.voters.find(v => v.token.toUpperCase() === tokenInput);
+      const voter = (db.voters || []).find(v => v.token.toUpperCase() === tokenInput);
 
       if (!voter) {
         showMsg(msgEl, "Token tidak valid. Silakan periksa kembali token Anda.", "text-red-600");
@@ -611,7 +714,7 @@
       const container = document.getElementById('ballot-categories-list');
       container.innerHTML = '';
 
-      const voterCategories = db.categories.filter(c => (voter.assignedCategories || []).includes(c.id));
+      const voterCategories = (db.categories || []).filter(c => (voter.assignedCategories || []).includes(c.id));
 
       if (voterCategories.length === 0) {
         container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Anda tidak memiliki daftar surat suara yang dialokasikan. Silakan hubungi panitia.</div>`;
@@ -619,7 +722,7 @@
       }
 
       voterCategories.forEach((cat, idx) => {
-        const candidates = db.candidates.filter(c => c.categoryId === cat.id);
+        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
         const orgLogo = CATEGORY_LOGOS[cat.id] || LOGOS.mts;
 
         let candHtml = '';
@@ -667,8 +770,8 @@
 
     function triggerBallotSubmit() {
       const db = getData();
-      const voter = db.voters.find(v => v.token === activeVoterToken);
-      const voterCategories = db.categories.filter(c => (voter.assignedCategories || []).includes(c.id));
+      const voter = (db.voters || []).find(v => v.token === activeVoterToken);
+      const voterCategories = (db.categories || []).filter(c => (voter.assignedCategories || []).includes(c.id));
 
       let selectedVotes = [];
       let missingCategory = false;
@@ -698,7 +801,7 @@
 
     function executeBallotSubmission(selectedVotes, voter, db) {
       selectedVotes.forEach(candId => {
-        const candidate = db.candidates.find(c => c.id === candId);
+        const candidate = (db.candidates || []).find(c => c.id === candId);
         if (candidate) {
           candidate.votes = (candidate.votes || 0) + 1;
         }
@@ -707,9 +810,87 @@
       voter.hasVoted = true;
       saveData(db);
 
-      openConfirmModal("Suara Terkirim!", "Terima kasih! Suara Anda telah berhasil dikirim dan tersimpan secara sah.", () => {
+      openConfirmModal("Suara Terkirim!", "Terima kasih! Suara Anda telah berhasil dikirim ke Cloud Database secara sah.", () => {
         location.reload();
       }, false);
+    }
+
+    // ==================== HELPER STATISTIK DPT & SUARA ====================
+    function calculateCategoryStats(catId, db) {
+      const eligibleVoters = (db.voters || []).filter(v => (v.assignedCategories || []).includes(catId));
+      const totalEligible = eligibleVoters.length;
+      const votedCount = eligibleVoters.filter(v => v.hasVoted).length;
+      const unvotedCount = totalEligible - votedCount;
+
+      const votedPct = totalEligible > 0 ? ((votedCount / totalEligible) * 100).toFixed(1) : 0;
+      const unvotedPct = totalEligible > 0 ? ((unvotedCount / totalEligible) * 100).toFixed(1) : 0;
+
+      return { totalEligible, votedCount, unvotedCount, votedPct, unvotedPct };
+    }
+
+    function buildCategoryResultCard(cat, db) {
+      const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+      const stats = calculateCategoryStats(cat.id, db);
+      const orgLogo = CATEGORY_LOGOS[cat.id] || LOGOS.mts;
+
+      let candidatesHtml = '';
+      if (candidates.length === 0) {
+        candidatesHtml = `<div class="p-4 text-xs text-slate-400 text-center">Belum ada kandidat.</div>`;
+      } else {
+        candidatesHtml = candidates.map(c => {
+          const percentage = stats.votedCount > 0 ? ((c.votes || 0) / stats.votedCount * 100).toFixed(1) : 0;
+          return `
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-sm font-semibold">
+                <span class="text-slate-800">${c.name}</span>
+                <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
+                <div class="bg-custom-gradient h-3.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      return `
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
+            <div class="flex items-center gap-3">
+              <img src="${orgLogo}" alt="Logo" class="h-8 w-auto object-contain">
+              <h3 class="text-lg font-bold text-slate-900">${cat.name}</h3>
+            </div>
+            <div class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg w-fit">
+              Pemilih Berhak: <span class="font-mono text-slate-900 font-bold">${stats.totalEligible}</span>
+            </div>
+          </div>
+
+          <!-- Statistik Ringkasan Suara Masuk & Tidak Masuk -->
+          <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+            <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg flex items-center justify-between">
+              <div>
+                <div class="text-emerald-700 font-semibold">Suara Masuk</div>
+                <div class="text-base font-bold text-emerald-900 font-mono">${stats.votedCount}</div>
+              </div>
+              <span class="text-emerald-700 font-bold font-mono text-xs bg-emerald-200/60 px-2 py-0.5 rounded">${stats.votedPct}%</span>
+            </div>
+
+            <div class="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
+              <div>
+                <div class="text-rose-700 font-semibold">Suara Belum Masuk</div>
+                <div class="text-base font-bold text-rose-900 font-mono">${stats.unvotedCount}</div>
+              </div>
+              <span class="text-rose-700 font-bold font-mono text-xs bg-rose-200/60 px-2 py-0.5 rounded">${stats.unvotedPct}%</span>
+            </div>
+          </div>
+
+          <!-- Perolehan Suara Per Kandidat -->
+          <div class="space-y-4 pt-1">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Perolehan Suara Kandidat</div>
+            ${candidatesHtml}
+          </div>
+        </div>
+      `;
     }
 
     // ==================== RESULTS SYSTEM ====================
@@ -718,60 +899,26 @@
       const container = document.getElementById('results-content-area');
       const hiddenCard = document.getElementById('results-hidden-card');
 
-      if (db.settings.hideResults) {
+      if (!container || !hiddenCard) return;
+
+      if (db.settings && db.settings.hideResults) {
         container.innerHTML = '';
         hiddenCard.classList.remove('hidden');
-        return;
+      } else {
+        hiddenCard.classList.add('hidden');
+        container.innerHTML = (db.categories || []).map(cat => buildCategoryResultCard(cat, db)).join('');
       }
 
-      hiddenCard.classList.add('hidden');
-      container.innerHTML = '';
-
-      db.categories.forEach(cat => {
-        const candidates = db.candidates.filter(c => c.categoryId === cat.id);
-        const totalCategoryVotes = candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
-        const orgLogo = CATEGORY_LOGOS[cat.id] || LOGOS.mts;
-
-        let candidatesHtml = '';
-        if (candidates.length === 0) {
-          candidatesHtml = `<div class="p-4 text-xs text-slate-400 text-center">Belum ada kandidat.</div>`;
-        } else {
-          candidatesHtml = candidates.map(c => {
-            const percentage = totalCategoryVotes > 0 ? ((c.votes || 0) / totalCategoryVotes * 100).toFixed(1) : 0;
-            return `
-              <div class="space-y-1.5">
-                <div class="flex justify-between items-center text-sm font-semibold">
-                  <span class="text-slate-800">${c.name}</span>
-                  <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
-                  <div class="bg-custom-gradient h-3.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        container.innerHTML += `
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex justify-between items-center border-b pb-3">
-              <div class="flex items-center gap-3">
-                <img src="${orgLogo}" alt="Logo" class="h-7 w-auto object-contain">
-                <h3 class="text-lg font-bold text-slate-900">${cat.name}</h3>
-              </div>
-              <span class="text-xs bg-custom-teal-light text-custom-teal px-3 py-1 rounded-full font-bold">Total Suara: ${totalCategoryVotes}</span>
-            </div>
-            <div class="space-y-4">
-              ${candidatesHtml}
-            </div>
-          </div>
-        `;
-      });
+      // Render Admin Live Results jika tab admin live terbuka
+      const adminLiveContainer = document.getElementById('admin-live-results-container');
+      if (adminLiveContainer) {
+        adminLiveContainer.innerHTML = (db.categories || []).map(cat => buildCategoryResultCard(cat, db)).join('');
+      }
     }
 
     // ==================== ADMIN SYSTEM ====================
     function checkAdminSession() {
-      const isAdmin = sessionStorage.getItem('isAdminLoggedIn');
+      const isAdmin = sessionStorage.getItem('isAdminLoggedIn') || localStorage.getItem('isAdminLoggedIn');
       if (isAdmin === 'true') {
         document.getElementById('admin-login-card').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -788,12 +935,17 @@
 
     function handleAdminLogin(e) {
       e.preventDefault();
-      const u = document.getElementById('admin-user').value;
-      const p = document.getElementById('admin-pass').value;
+      const u = document.getElementById('admin-user').value.trim().toLowerCase();
+      const p = document.getElementById('admin-pass').value.trim();
       const msg = document.getElementById('admin-login-msg');
+      const db = getData();
 
-      if (u === 'admin' && p === 'password123') {
+      const validUser = (db.adminAuth && db.adminAuth.username) ? db.adminAuth.username.toLowerCase() : "admin";
+      const validPass = (db.adminAuth && db.adminAuth.password) ? db.adminAuth.password : "password123";
+
+      if (u === validUser && p === validPass) {
         sessionStorage.setItem('isAdminLoggedIn', 'true');
+        localStorage.setItem('isAdminLoggedIn', 'true');
         checkAdminSession();
       } else {
         showMsg(msg, "Username atau password salah!", "text-red-600");
@@ -802,6 +954,7 @@
 
     function adminLogout() {
       sessionStorage.removeItem('isAdminLoggedIn');
+      localStorage.removeItem('isAdminLoggedIn');
       checkAdminSession();
       switchTab('voter');
     }
@@ -810,7 +963,7 @@
       const pages = document.querySelectorAll('.admin-sub-page');
       pages.forEach(p => p.classList.add('hidden'));
 
-      const btns = ['setting', 'datetime', 'ballot', 'voters'];
+      const btns = ['setting', 'datetime', 'ballot', 'voters', 'live'];
       btns.forEach(b => {
         const btnEl = document.getElementById(`admin-menu-btn-${b}`);
         btnEl.className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2";
@@ -820,46 +973,83 @@
       document.getElementById(`admin-menu-btn-${menu}`).className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2";
 
       if (menu === 'voters') renderVoterCategoryCheckboxes();
+      if (menu === 'live') renderResults();
     }
 
     function loadAdminData() {
       const db = getData();
       
-      document.getElementById('setting-title').value = db.settings.title || '';
-      document.getElementById('setting-hide-results').checked = db.settings.hideResults || false;
-      document.getElementById('setting-confirm-vote').checked = db.settings.confirmVote || false;
+      if (db.settings) {
+        document.getElementById('setting-title').value = db.settings.title || '';
+        document.getElementById('setting-hide-results').checked = db.settings.hideResults || false;
+        document.getElementById('setting-confirm-vote').checked = db.settings.confirmVote || false;
 
-      document.getElementById('datetime-start').value = db.settings.startTime || '';
-      document.getElementById('datetime-end').value = db.settings.endTime || '';
+        document.getElementById('datetime-start').value = db.settings.startTime || '';
+        document.getElementById('datetime-end').value = db.settings.endTime || '';
+      }
+
+      if (db.adminAuth) {
+        document.getElementById('setting-admin-user').value = db.adminAuth.username || 'admin';
+        document.getElementById('setting-admin-pass').value = db.adminAuth.password || 'password123';
+      }
 
       renderAdminCategoriesAndCandidates();
       renderVotersTable();
       renderVoterCategoryCheckboxes();
+      renderResults();
     }
 
     function saveSettings(e) {
       e.preventDefault();
       const db = getData();
+      if (!db.settings) db.settings = {};
       db.settings.title = document.getElementById('setting-title').value;
       db.settings.hideResults = document.getElementById('setting-hide-results').checked;
       db.settings.confirmVote = document.getElementById('setting-confirm-vote').checked;
       saveData(db);
-      openConfirmModal("Tersimpan!", "Pengaturan umum berhasil disimpan.", null, false);
+      openConfirmModal("Tersimpan!", "Pengaturan umum berhasil disimpan ke Cloud Database.", null, false);
+    }
+
+    function saveAdminAccount(e) {
+      e.preventDefault();
+      const newUser = document.getElementById('setting-admin-user').value.trim();
+      const newPass = document.getElementById('setting-admin-pass').value.trim();
+
+      if (newUser.length < 3) {
+        openConfirmModal("Gagal Simpan", "Username minimal terdiri dari 3 karakter!", null, false);
+        return;
+      }
+      if (newPass.length < 6) {
+        openConfirmModal("Gagal Simpan", "Password minimal terdiri dari 6 karakter!", null, false);
+        return;
+      }
+
+      const db = getData();
+      db.adminAuth = {
+        username: newUser,
+        password: newPass
+      };
+
+      saveData(db);
+      openConfirmModal("Akun Admin Diperbarui!", `Username & Password admin berhasil diganti. Gunakan '${newUser}' untuk login selanjutnya.`, null, false);
     }
 
     function saveDateTime(e) {
       e.preventDefault();
       const db = getData();
+      if (!db.settings) db.settings = {};
       db.settings.startTime = document.getElementById('datetime-start').value;
       db.settings.endTime = document.getElementById('datetime-end').value;
       saveData(db);
-      openConfirmModal("Tersimpan!", "Jadwal operasional berhasil disimpan.", null, false);
+      openConfirmModal("Tersimpan!", "Jadwal operasional berhasil disimpan ke Cloud Database.", null, false);
     }
 
     function addCategory(e) {
       e.preventDefault();
       const nameInput = document.getElementById('input-cat-name');
       const db = getData();
+
+      if (!db.categories) db.categories = [];
 
       const newCategory = {
         id: 'cat-' + Date.now(),
@@ -879,9 +1069,9 @@
         "Menghapus kategori ini juga akan menghapus seluruh kandidat di dalamnya. Lanjutkan?", 
         () => {
           const db = getData();
-          db.categories = db.categories.filter(c => c.id !== catId);
-          db.candidates = db.candidates.filter(c => c.categoryId !== catId);
-          db.voters.forEach(v => {
+          db.categories = (db.categories || []).filter(c => c.id !== catId);
+          db.candidates = (db.candidates || []).filter(c => c.categoryId !== catId);
+          (db.voters || []).forEach(v => {
             v.assignedCategories = (v.assignedCategories || []).filter(id => id !== catId);
           });
           saveData(db);
@@ -895,6 +1085,8 @@
       e.preventDefault();
       const form = e.target;
       const db = getData();
+
+      if (!db.candidates) db.candidates = [];
 
       const newCand = {
         id: 'cand-' + Date.now(),
@@ -916,7 +1108,7 @@
         "Apakah Anda yakin ingin menghapus kandidat ini?", 
         () => {
           const db = getData();
-          db.candidates = db.candidates.filter(c => c.id !== candId);
+          db.candidates = (db.candidates || []).filter(c => c.id !== candId);
           saveData(db);
           renderAdminCategoriesAndCandidates();
         }
@@ -928,13 +1120,13 @@
       const container = document.getElementById('admin-categories-container');
       container.innerHTML = '';
 
-      if (db.categories.length === 0) {
+      if (!db.categories || db.categories.length === 0) {
         container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Belum ada kategori pemilihan. Silakan buat di atas.</div>`;
         return;
       }
 
       db.categories.forEach(cat => {
-        const candidates = db.candidates.filter(c => c.categoryId === cat.id);
+        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
 
         container.innerHTML += `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
@@ -970,7 +1162,7 @@
                 <input type="text" name="candVision" placeholder="Visi & Misi Ringkas" required class="px-3 py-2 text-xs rounded-lg border outline-none">
               </div>
               <button type="submit" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">
-                + Simpan Kandidat
+                + Simpan Kandidat Ke Cloud
               </button>
             </form>
           </div>
@@ -983,7 +1175,7 @@
       const container = document.getElementById('voter-category-checkboxes');
       container.innerHTML = '';
 
-      if (db.categories.length === 0) {
+      if (!db.categories || db.categories.length === 0) {
         container.innerHTML = `<span class="text-xs text-slate-400">Belum ada kategori surat suara. Tambahkan pada Menu Kotak Suara terlebih dahulu.</span>`;
         return;
       }
@@ -1003,6 +1195,8 @@
       const name = document.getElementById('input-voter-name').value.trim();
       const token = document.getElementById('input-voter-token-reg').value.trim().toUpperCase();
       const db = getData();
+
+      if (!db.voters) db.voters = [];
 
       if (db.voters.some(v => v.token.toUpperCase() === token)) {
         openConfirmModal("Token Sudah Ada", "Token ini sudah terdaftar. Gunakan token lain!", null, false);
@@ -1035,7 +1229,7 @@
         `Apakah Anda yakin ingin menghapus pemilih dengan token ${token}?`, 
         () => {
           const db = getData();
-          db.voters = db.voters.filter(v => v.token !== token);
+          db.voters = (db.voters || []).filter(v => v.token !== token);
           saveData(db);
           renderVotersTable();
         }
@@ -1045,16 +1239,18 @@
     function renderVotersTable() {
       const db = getData();
       const tbody = document.getElementById('voters-table-body');
-      document.getElementById('voter-count-badge').innerText = `Total: ${db.voters.length}`;
+      
+      if (!tbody) return;
+      document.getElementById('voter-count-badge').innerText = `Total: ${(db.voters || []).length}`;
       tbody.innerHTML = '';
 
-      if (db.voters.length === 0) {
+      if (!db.voters || db.voters.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada pemilih terdaftar.</td></tr>`;
         return;
       }
 
       db.voters.forEach(v => {
-        const assignedCats = db.categories.filter(c => (v.assignedCategories || []).includes(c.id));
+        const assignedCats = (db.categories || []).filter(c => (v.assignedCategories || []).includes(c.id));
         const catBadges = assignedCats.map(c => `<span class="inline-block bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded border border-slate-200 mr-1 mb-1">${c.name}</span>`).join('');
 
         tbody.innerHTML += `
@@ -1082,7 +1278,7 @@
 
     function openEditVoterModal(token) {
       const db = getData();
-      selectedVoterForEdit = db.voters.find(v => v.token === token);
+      selectedVoterForEdit = (db.voters || []).find(v => v.token === token);
       if (!selectedVoterForEdit) return;
 
       document.getElementById('modal-edit-voter-name').innerText = `${selectedVoterForEdit.name} (${selectedVoterForEdit.token})`;
@@ -1090,7 +1286,7 @@
       const container = document.getElementById('modal-edit-category-checkboxes');
       container.innerHTML = '';
 
-      db.categories.forEach(cat => {
+      (db.categories || []).forEach(cat => {
         const isChecked = (selectedVoterForEdit.assignedCategories || []).includes(cat.id);
         container.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded transition text-xs font-medium text-slate-700">
@@ -1111,7 +1307,7 @@
     function saveVoterScopeEdit() {
       if (!selectedVoterForEdit) return;
       const db = getData();
-      const voter = db.voters.find(v => v.token === selectedVoterForEdit.token);
+      const voter = (db.voters || []).find(v => v.token === selectedVoterForEdit.token);
 
       if (voter) {
         const selectedScope = Array.from(document.querySelectorAll('input[name="edit-voter-cat-scope"]:checked')).map(cb => cb.value);
@@ -1125,10 +1321,10 @@
 
     function requestResetAllData() {
       openConfirmModal(
-        "Reset Seluruh Data", 
-        "Apakah Anda yakin ingin mengembalikan seluruh sistem ke data awal? Seluruh suara dan data pemilih akan terhapus secara permanen.", 
+        "Reset Seluruh Data Cloud", 
+        "Apakah Anda yakin ingin mengembalikan seluruh sistem ke data awal? Seluruh suara dan data pemilih akan terhapus secara permanen dari Firebase.", 
         () => {
-          localStorage.removeItem('evoting_db');
+          saveData(window.DEFAULT_DATA);
           location.reload();
         }
       );
