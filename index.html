@@ -1,1061 +1,1144 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Vote Digital - Sistem Pemilihan Mandiri</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .tab-active { @apply border-indigo-600 text-indigo-600 font-semibold; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Voting MTs Al Ishlah Panambangan 2026</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    
+    .bg-custom-gradient {
+      background: linear-gradient(135deg, #012c2e 0%, #014a48 50%, #078f87 100%);
+    }
+    
+    .text-custom-teal {
+      color: #078f87;
+    }
+    
+    .bg-custom-teal {
+      background-color: #014a48;
+    }
+    
+    .bg-custom-teal-light {
+      background-color: #e6f4f3;
+    }
+
+    .border-custom-teal {
+      border-color: #078f87;
+    }
+  </style>
 </head>
-<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
-
-    <!-- Header / Navigation Bar -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
-                        <i data-lucide="vote" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <span class="font-bold text-lg text-slate-900 tracking-tight block leading-none">E-Vote Digital</span>
-                        <span class="text-xs text-slate-500 font-medium">Sistem Pemilihan Mandiri</span>
-                    </div>
-                </div>
-
-                <!-- Main Navigation Tabs -->
-                <nav class="hidden md:flex space-x-8" aria-label="Tabs">
-                    <button onclick="switchTab('voter')" id="nav-voter" class="nav-tab inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
-                        <i data-lucide="check-square" class="w-4 h-4 mr-2"></i> Bilik Suara
-                    </button>
-                    <button onclick="switchTab('results')" id="nav-results" class="nav-tab inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4 mr-2"></i> Hasil Suara
-                    </button>
-                    <button onclick="switchTab('admin')" id="nav-admin" class="nav-tab inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-slate-500 hover:text-slate-700 hover:border-slate-300">
-                        <i data-lucide="shield-check" class="w-4 h-4 mr-2"></i> Panel Admin
-                    </button>
-                </nav>
-
-                <!-- Status Login Admin / Mobile Toggle -->
-                <div class="flex items-center gap-3">
-                    <div id="admin-status-badge" class="hidden items-center gap-2 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-full text-xs font-semibold text-indigo-700">
-                        <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
-                        Admin Logged In
-                        <button onclick="adminLogout()" class="ml-1 text-slate-400 hover:text-red-600 transition" title="Logout Admin">
-                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </div>
-
-                    <!-- Mobile Menu Button -->
-                    <div class="flex items-center md:hidden">
-                        <button onclick="toggleMobileMenu()" class="text-slate-500 hover:text-slate-700 p-2 rounded-lg">
-                            <i data-lucide="menu" class="w-6 h-6"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+  <!-- Header / Navigation -->
+  <header class="bg-custom-gradient text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <!-- Logo MTs & KPR Header -->
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
+          <img id="logo-mts-header" src="" alt="Logo MTs Al Ishlah" class="h-10 w-auto object-contain">
+          <img id="logo-kpr-header" src="" alt="Logo KPR" class="h-10 w-auto object-contain">
         </div>
-
-        <!-- Mobile Navigation Menu -->
-        <div id="mobile-menu" class="hidden md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
-            <button onclick="switchTab('voter'); toggleMobileMenu();" class="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100">
-                <i data-lucide="check-square" class="w-5 h-5 mr-3 text-indigo-600"></i> Bilik Suara
-            </button>
-            <button onclick="switchTab('results'); toggleMobileMenu();" class="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100">
-                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-indigo-600"></i> Hasil Suara
-            </button>
-            <button onclick="switchTab('admin'); toggleMobileMenu();" class="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100">
-                <i data-lucide="shield-check" class="w-5 h-5 mr-3 text-indigo-600"></i> Panel Admin
-            </button>
+        <div>
+          <h1 id="header-app-title" class="text-base sm:text-lg font-bold leading-tight">Pemilu Raya MTs Al Ishlah Panambangan 2026</h1>
+          <p class="text-xs text-teal-200">Portal E-Voting Digital Mandiri</p>
         </div>
-    </header>
+      </div>
 
-    <!-- Main Dynamic Content Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        <!-- ==================== 1. VIEW BILIK SUARA (VOTER) ==================== -->
-        <section id="view-voter" class="tab-view space-y-6">
-            <!-- STEP 1: AUTHENTICATION TOKEN -->
-            <div id="voter-step-token" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center space-y-6">
-                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-                    <i data-lucide="key-round" class="w-8 h-8"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Masukkan Token Pemilih</h2>
-                    <p class="text-sm text-slate-500 mt-1">Gunakan token unik (contoh: EV-XXXX) yang diberikan oleh panitia pemilihan.</p>
-                </div>
-                <form onsubmit="handleTokenSubmit(event)" class="space-y-4">
-                    <div>
-                        <input type="text" id="voter-token-input" placeholder="EV-XXXX" uppercase class="w-full text-center tracking-widest font-mono text-xl uppercase px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" required autocomplete="off">
-                    </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-md shadow-indigo-100 transition flex items-center justify-center gap-2">
-                        <i data-lucide="arrow-right" class="w-5 h-5"></i> Masuk ke Surat Suara
-                    </button>
-                </form>
-            </div>
-
-            <!-- STEP 2: DIGITAL BALLOT (SURAT SUARA) -->
-            <div id="voter-step-ballot" class="hidden space-y-6">
-                <div class="bg-indigo-900 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <span class="bg-indigo-800 text-indigo-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Bilik Suara Aktif</span>
-                        <h2 class="text-2xl font-bold mt-1">Surat Suara Pemilihan Digital</h2>
-                        <p class="text-indigo-200 text-sm">Pilih salah satu pasangan/kandidat sesuai hati nurani Anda.</p>
-                    </div>
-                    <div class="bg-indigo-800/60 backdrop-blur border border-indigo-700/50 px-4 py-2 rounded-xl text-xs font-mono">
-                        Token Digunakan: <span id="active-voter-token" class="font-bold text-indigo-300"></span>
-                    </div>
-                </div>
-
-                <div id="ballot-candidate-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Candidates will be loaded dynamically -->
-                </div>
-            </div>
-
-            <!-- STEP 3: VOTE SUCCESS SCREEN -->
-            <div id="voter-step-success" class="hidden max-w-lg mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center space-y-6">
-                <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                    <i data-lucide="check-circle-2" class="w-10 h-10"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Suara Anda Telah Terrekam!</h2>
-                    <p class="text-slate-500 text-sm mt-2">Terima kasih telah berpartisipasi dalam pemilihan ini. Token Anda telah otomatis ditandai sebagai <span class="font-semibold text-slate-700">Sudah Memilih</span> dan tidak dapat digunakan lagi.</p>
-                </div>
-                <div class="pt-2">
-                    <button onclick="resetVoterScreen()" class="bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-6 rounded-xl transition inline-flex items-center gap-2 text-sm">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Selesai / Kembali
-                    </button>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ==================== 2. VIEW HASIL SUARA (RESULTS) ==================== -->
-        <section id="view-results" class="tab-view hidden space-y-6">
-            <div id="results-content-public">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-900">Hasil Perolehan Suara</h2>
-                        <p class="text-sm text-slate-500">Pemantauan hasil pemungutan suara secara real-time.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="renderResultsView()" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-sm">
-                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Perbarui Data
-                        </button>
-                    </div>
-                </div>
-
-                <!-- HIDDEN RESULTS WARNING BANNER -->
-                <div id="results-hidden-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-4">
-                    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto">
-                        <i data-lucide="lock" class="w-8 h-8"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-amber-900">Hasil Suara Dirahasiakan</h3>
-                        <p class="text-sm text-amber-700 max-w-md mx-auto mt-1">Panitia telah mengaktifkan mode kerahasiaan hasil. Hasil perolehan suara disembunyikan hingga seluruh proses pemilihan berakhir.</p>
-                    </div>
-                </div>
-
-                <!-- MAIN RESULTS CONTAINER -->
-                <div id="results-visible-container" class="space-y-6">
-                    <!-- Progress Bar List -->
-                    <div id="results-progress-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Dynamic Progress Cards -->
-                    </div>
-
-                    <!-- Chart Container -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                        <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-600"></i> Grafik Grafik Suara
-                        </h3>
-                        <div class="relative w-full h-72">
-                            <canvas id="resultsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- ==================== 3. VIEW ADMIN PANEL (PROTECTED) ==================== -->
-        <section id="view-admin" class="tab-view hidden space-y-6">
-
-            <!-- ADMIN LOGIN FORM -->
-            <div id="admin-login-screen" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-                <div class="text-center space-y-2">
-                    <div class="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto">
-                        <i data-lucide="shield-lock" class="w-7 h-7"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Autentikasi Admin</h2>
-                    <p class="text-xs text-slate-500">Silakan masukkan akun kredensial admin untuk mengakses panel kontrol.</p>
-                </div>
-
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Username</label>
-                        <input type="text" id="admin-user" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="Masukkan username">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Password</label>
-                        <input type="password" id="admin-pass" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm" required placeholder="Masukkan password">
-                    </div>
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-4 rounded-xl transition text-sm flex items-center justify-center gap-2">
-                        <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard Admin
-                    </button>
-                </form>
-            </div>
-
-            <!-- ADMIN DASHBOARD (PROTECTED CONTENT) -->
-            <div id="admin-dashboard-screen" class="hidden space-y-8">
-
-                <!-- Header Admin Dashboard -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-900">Dashboard Pengelolaan Pemilu</h2>
-                        <p class="text-sm text-slate-500">Kelola kandidat, token pemilih, dan konfigurasi sistem e-voting.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="adminLogout()" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
-                            <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Admin
-                        </button>
-                    </div>
-                </div>
-
-                <!-- OVERVIEW STATS -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-slate-400 uppercase">Total DPT / Token</span>
-                        <div class="text-2xl font-extrabold text-slate-900 mt-1" id="stat-total-tokens">0</div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-emerald-600 uppercase">Sudah Memilih</span>
-                        <div class="text-2xl font-extrabold text-emerald-600 mt-1" id="stat-used-tokens">0</div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-amber-600 uppercase">Belum Memilih</span>
-                        <div class="text-2xl font-extrabold text-amber-600 mt-1" id="stat-unused-tokens">0</div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <span class="text-xs font-semibold text-indigo-600 uppercase">Tingkat Partisipasi</span>
-                        <div class="text-2xl font-extrabold text-indigo-600 mt-1" id="stat-participation">0%</div>
-                    </div>
-                </div>
-
-                <!-- ADMIN TABS / SECTIONS -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    <!-- LEFT COLUMN: MANAGE CANDIDATES & SETTINGS -->
-                    <div class="space-y-8 lg:col-span-1">
-
-                        <!-- CANDIDATE MANAGEMENT -->
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-slate-900 flex items-center gap-2">
-                                    <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Kelola Kandidat
-                                </h3>
-                                <button onclick="openCandidateModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 shadow-sm transition">
-                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah
-                                </button>
-                            </div>
-
-                            <div id="admin-candidates-list" class="space-y-3 max-h-96 overflow-y-auto pr-1 hide-scrollbar">
-                                <!-- Candidate Items inserted dynamically -->
-                            </div>
-                        </div>
-
-                        <!-- ELECTION SETTINGS -->
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                            <h3 class="font-bold text-slate-900 flex items-center gap-2">
-                                <i data-lucide="settings" class="w-5 h-5 text-indigo-600"></i> Pengaturan Pemilu
-                            </h3>
-
-                            <div class="space-y-3 pt-2">
-                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                                    <div class="space-y-0.5">
-                                        <span class="text-xs font-semibold text-slate-800 block">Sembunyikan Hasil Suara</span>
-                                        <span class="text-[11px] text-slate-500 block">Sembunyikan grafik hasil untuk pemilih</span>
-                                    </div>
-                                    <input type="checkbox" id="setting-hide-results" onchange="toggleSetting('hideResults')" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
-                                </label>
-
-                                <label class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                                    <div class="space-y-0.5">
-                                        <span class="text-xs font-semibold text-slate-800 block">Konfirmasi Sebelum Kirim</span>
-                                        <span class="text-[11px] text-slate-500 block">Tampilkan pop-up konfirmasi saat memilih</span>
-                                    </div>
-                                    <input type="checkbox" id="setting-confirm-vote" onchange="toggleSetting('confirmVote')" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
-                                </label>
-                            </div>
-
-                            <div class="pt-4 border-t border-slate-100">
-                                <button onclick="resetSystemData()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i> Reset Seluruh Data Pemilu
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- RIGHT COLUMN: TOKEN GENERATOR & MANAGEMENT -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h3 class="font-bold text-slate-900 flex items-center gap-2">
-                                        <i data-lucide="ticket" class="w-5 h-5 text-indigo-600"></i> Generator Token Pemilih
-                                    </h3>
-                                    <p class="text-xs text-slate-500">Buat token unik otomatis untuk mengizinkan hak pilih DPT.</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="copyUnusedTokens()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Salin Token Belum Pakai
-                                    </button>
-                                    <button onclick="clearTokens()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition">
-                                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Hapus Semua Token
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Token Generator Form -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-wrap sm:flex-nowrap items-center gap-3">
-                                <input type="number" id="token-count-input" min="1" max="100" value="10" class="w-full sm:w-32 px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Jumlah">
-                                <button onclick="generateTokens()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i> Generate Token Acak
-                                </button>
-                            </div>
-
-                            <!-- Search & Token List Table -->
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between gap-4">
-                                    <input type="text" id="token-search" oninput="renderTokenTable()" placeholder="Cari token..." class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs w-48 outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <div class="text-xs text-slate-500">
-                                        Menampilkan: <span id="token-filter-count" class="font-bold text-slate-800">0</span> token
-                                    </div>
-                                </div>
-
-                                <div class="overflow-x-auto border border-slate-200 rounded-xl">
-                                    <table class="w-full text-left text-xs">
-                                        <thead class="bg-slate-50 border-b border-slate-200 font-semibold text-slate-600 uppercase tracking-wider">
-                                            <tr>
-                                                <th class="px-4 py-3">#</th>
-                                                <th class="px-4 py-3">Kode Token</th>
-                                                <th class="px-4 py-3">Status</th>
-                                                <th class="px-4 py-3 text-right">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="token-table-body" class="divide-y divide-slate-100 bg-white">
-                                            <!-- Token rows loaded dynamically -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
-            &copy; 2026 E-Vote Digital — Platform Pemilihan Bebas, Jujur, dan Transparan.
-        </div>
-    </footer>
-
-    <!-- ==================== MODALS ==================== -->
-
-    <!-- CANDIDATE MODAL (ADD / EDIT) -->
-    <div id="modal-candidate" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 shadow-xl border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 id="modal-candidate-title" class="font-bold text-slate-900">Tambah Kandidat Baru</h3>
-                <button onclick="closeCandidateModal()" class="text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <form onsubmit="saveCandidate(event)" class="space-y-4">
-                <input type="hidden" id="candidate-id">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nama Kandidat / Paslon</label>
-                    <input type="text" id="candidate-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Contoh: Paslon 01 - Budi & Ani">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">URL Foto Profil</label>
-                    <input type="url" id="candidate-photo" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://images.unsplash.com/...">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Deskripsi Singkat / Jargon</label>
-                    <input type="text" id="candidate-desc" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Contoh: Bersama Mewujudkan Transparansi">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Visi & Misi</label>
-                    <textarea id="candidate-vision" rows="3" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Tuliskan visi dan misi kandidat..."></textarea>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeCandidateModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm">Simpan Kandidat</button>
-                </div>
-            </form>
-        </div>
+      <nav class="flex items-center space-x-2">
+        <button onclick="switchTab('voter')" id="tab-btn-voter" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white/20 hover:bg-white/30 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-vote-yea"></i><span class="hidden sm:inline">Bilik Suara</span>
+        </button>
+        <button onclick="switchTab('results')" id="tab-btn-results" class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/20 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-column"></i><span class="hidden sm:inline">Hasil Suara</span>
+        </button>
+        <button onclick="switchTab('admin')" id="tab-btn-admin" class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/20 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-user-shield"></i><span class="hidden sm:inline">Admin</span>
+        </button>
+        <button id="logout-btn" onclick="adminLogout()" class="hidden px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600 hover:bg-red-700 transition text-white items-center gap-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i> Keluar
+        </button>
+      </nav>
     </div>
+  </header>
 
-    <!-- VOTE CONFIRMATION MODAL -->
-    <div id="modal-confirm-vote" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
-            <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto">
-                <i data-lucide="help-circle" class="w-8 h-8"></i>
-            </div>
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- ==================== TAB 1: BILIK SUARA (VOTER) ==================== -->
+    <section id="sec-voter" class="space-y-6">
+      
+      <!-- Token Entry Section -->
+      <div id="voter-token-card" class="max-w-md mx-auto mt-10 bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 bg-custom-teal-light text-custom-teal rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">Masuk Bilik Suara</h2>
+          <p class="text-sm text-slate-500 mt-1">Masukkan Token Unik Pemilih yang Anda miliki untuk memulai pemilihan.</p>
+        </div>
+
+        <form onsubmit="handleTokenSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Token Pemilih</label>
+            <input type="text" id="input-voter-token" required placeholder="Contoh: EV-1001" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-600 focus:border-teal-600 outline-none uppercase font-mono text-center text-lg tracking-widest">
+          </div>
+          <button type="submit" class="w-full bg-custom-gradient hover:opacity-95 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2">
+            <span>Buka Surat Suara</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+        <div id="voter-token-msg" class="mt-4 text-center text-sm font-medium hidden"></div>
+      </div>
+
+      <!-- Ballot Section (Hidden by Default) -->
+      <div id="voter-ballot-area" class="hidden space-y-8">
+        
+        <!-- Status Banner -->
+        <div class="bg-custom-teal-light border border-teal-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <div class="text-xs font-bold text-custom-teal uppercase tracking-wider">Pemilih Terverifikasi</div>
+            <div id="voter-welcome-name" class="text-lg font-bold text-slate-800">Nama Pemilih</div>
+            <div class="text-xs text-slate-500">Silakan tentukan pilihan Anda pada setiap kategori surat suara di bawah ini.</div>
+          </div>
+          <div class="flex items-center gap-2 text-xs bg-teal-200/60 text-slate-800 px-3 py-1.5 rounded-full font-mono font-semibold">
+            <i class="fa-solid fa-shield-halved text-custom-teal"></i> Sesi Pemilihan Digital
+          </div>
+        </div>
+
+        <!-- Categories & Candidates Container -->
+        <div id="ballot-categories-list" class="space-y-8">
+          <!-- Dynamic Content Loaded Here -->
+        </div>
+
+        <!-- Submit Ballot Button -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 text-center space-y-3">
+          <p class="text-sm text-slate-600">Pastikan Anda telah memilih kandidat pada seluruh kategori surat suara yang diberikan.</p>
+          <button onclick="triggerBallotSubmit()" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-emerald-200 transition transform active:scale-95 inline-flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> Kirim Seluruh Suara Saya
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 2: HASIL SUARA (RESULTS) ==================== -->
+    <section id="sec-results" class="hidden space-y-6">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Hasil Perolehan Suara</h2>
+          <p class="text-sm text-slate-500">Perhitungan suara masuk secara real-time dari seluruh bilik suara digital.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="renderResults()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-right"></i> Perbarui Data
+          </button>
+          <span id="results-status-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+            Pemilu Aktif
+          </span>
+        </div>
+      </div>
+
+      <!-- Hidden Results Alert Card -->
+      <div id="results-hidden-card" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
+        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+          <i class="fa-solid fa-eye-slash"></i>
+        </div>
+        <h3 class="text-xl font-bold text-amber-900">Hasil Suara Dirahasiakan</h3>
+        <p class="text-sm text-amber-700 max-w-md mx-auto">Panitia pemilihan telah mengaktifkan mode privasi. Hasil perolehan suara akan ditampilkan secara otomatis setelah masa pemilihan berakhir.</p>
+      </div>
+
+      <!-- Container Chart Results -->
+      <div id="results-content-area" class="space-y-8">
+        <!-- Dynamic Results per Category loaded here -->
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 3: ADMIN LOGIN & DASHBOARD ==================== -->
+    <section id="sec-admin" class="hidden space-y-6">
+      
+      <!-- ADMIN LOGIN FORM -->
+      <div id="admin-login-card" class="max-w-md mx-auto mt-10 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <div class="bg-custom-gradient text-white p-6 text-center">
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-2 text-xl shadow-lg backdrop-blur-sm">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <h2 class="text-xl font-bold">Autentikasi Admin</h2>
+          <p class="text-xs text-teal-100 mt-1">Masukan akun pengelola e-voting</p>
+        </div>
+
+        <form onsubmit="handleAdminLogin(event)" class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username</label>
+            <input type="text" id="admin-user" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password</label>
+            <input type="password" id="admin-pass" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+          </div>
+          <button type="submit" class="w-full bg-custom-gradient hover:opacity-95 text-white font-semibold py-3 rounded-lg transition text-sm flex items-center justify-center gap-2">
+            <span>Masuk Dashboard</span> <i class="fa-solid fa-right-to-bracket"></i>
+          </button>
+        </form>
+        <div id="admin-login-msg" class="pb-4 px-6 text-center text-xs font-medium text-red-600 hidden"></div>
+      </div>
+
+      <!-- ADMIN DASHBOARD PANEL (PROTECTED) -->
+      <div id="admin-dashboard" class="hidden space-y-6">
+        
+        <!-- Dashboard Top Header -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <span class="text-xs font-bold text-custom-teal uppercase tracking-wider">Panel Kontrol Utama</span>
+            <h2 class="text-2xl font-bold text-slate-900">Dashboard Pengelola Pemilu</h2>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="requestResetAllData()" class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-trash-arrow-up"></i> Reset Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Sub-Navigation (4 Menus) -->
+        <div class="flex border-b border-slate-200 overflow-x-auto bg-white rounded-xl shadow-sm p-1.5 gap-1">
+          <button onclick="switchAdminMenu('setting')" id="admin-menu-btn-setting" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2">
+            <i class="fa-solid fa-sliders"></i> 1. Setting Umum
+          </button>
+          <button onclick="switchAdminMenu('datetime')" id="admin-menu-btn-datetime" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+            <i class="fa-solid fa-clock"></i> 2. Tanggal & Jam
+          </button>
+          <button onclick="switchAdminMenu('ballot')" id="admin-menu-btn-ballot" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-packing"></i> 3. Kotak Suara
+          </button>
+          <button onclick="switchAdminMenu('voters')" id="admin-menu-btn-voters" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+            <i class="fa-solid fa-users"></i> 4. Voters
+          </button>
+        </div>
+
+        <!-- MENU 1: SETTING -->
+        <div id="admin-sub-setting" class="admin-sub-page bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+          <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Pengaturan Umum Pemilihan</h3>
+          
+          <form onsubmit="saveSettings(event)" class="space-y-4 max-w-xl">
             <div>
-                <h3 class="text-lg font-bold text-slate-900">Konfirmasi Pilihan Anda</h3>
-                <p class="text-xs text-slate-500 mt-1">Apakah Anda yakin ingin memilih pasangan berikut? Pilihan tidak dapat diubah setelah dikirim.</p>
+              <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Judul Voting / Nama Instansi</label>
+              <input type="text" id="setting-title" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
             </div>
-            <div id="confirm-candidate-summary" class="bg-slate-50 p-3 rounded-xl border border-slate-200 font-medium text-slate-800 text-sm">
-                <!-- Summary inserted dynamically -->
+
+            <div class="space-y-3 pt-2">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="setting-hide-results" class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500">
+                <span class="text-sm font-medium text-slate-700">Sembunyikan hasil perolehan suara selama pemilu berlangsung</span>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="setting-confirm-vote" class="w-4 h-4 text-teal-600 rounded focus:ring-teal-500">
+                <span class="text-sm font-medium text-slate-700">Tampilkan konfirmasi ulang sebelum pemilih mengirimkan surat suara</span>
+              </label>
             </div>
-            <div class="flex gap-2">
-                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50">Kembali</button>
-                <button id="btn-execute-vote" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-md">Ya, Kirim Suara</button>
-            </div>
+
+            <button type="submit" class="px-5 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm shadow transition">
+              <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pengaturan
+            </button>
+          </form>
         </div>
+
+        <!-- MENU 2: TANGGAL DAN JAM -->
+        <div id="admin-sub-datetime" class="admin-sub-page hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+          <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Jadwal Operasional Pemilihan</h3>
+          <p class="text-xs text-slate-500">Sistem akan mengunci bilik suara secara otomatis di luar rentang waktu ini.</p>
+
+          <form onsubmit="saveDateTime(event)" class="space-y-4 max-w-xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Waktu Mulai</label>
+                <input type="datetime-local" id="datetime-start" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Waktu Akhir</label>
+                <input type="datetime-local" id="datetime-end" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+              </div>
+            </div>
+
+            <button type="submit" class="px-5 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm shadow transition">
+              <i class="fa-solid fa-clock-rotate-left mr-1"></i> Simpan Jadwal
+            </button>
+          </form>
+        </div>
+
+        <!-- MENU 3: KOTAK SUARA (MULTI-PEMILIHAN & KANDIDAT) -->
+        <div id="admin-sub-ballot" class="admin-sub-page hidden space-y-6">
+          
+          <!-- Category Creation Card -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Tambah Kategori Pemilihan</h3>
+            <form onsubmit="addCategory(event)" class="flex gap-2 max-w-xl">
+              <input type="text" id="input-cat-name" placeholder="Contoh: Pemilihan Ketua PMR" required class="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+              <button type="submit" class="px-4 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm transition">
+                <i class="fa-solid fa-plus"></i> Kategori
+              </button>
+            </form>
+          </div>
+
+          <!-- List of Categories and Candidates -->
+          <div id="admin-categories-container" class="space-y-6">
+            <!-- Dynamic Content -->
+          </div>
+
+        </div>
+
+        <!-- MENU 4: VOTERS MANAGEMENT -->
+        <div id="admin-sub-voters" class="admin-sub-page hidden space-y-6">
+          
+          <!-- Add Voter Form -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Registrasi Pemilih Baru</h3>
+            <form onsubmit="addVoter(event)" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Pemilih</label>
+                  <input type="text" id="input-voter-name" placeholder="Nama Lengkap" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Token Pemilih</label>
+                  <div class="flex gap-2">
+                    <input type="text" id="input-voter-token-reg" placeholder="EV-XXXX" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm font-mono uppercase">
+                    <button type="button" onclick="generateRandomToken()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold text-slate-700 whitespace-nowrap">
+                      Acak
+                    </button>
+                  </div>
+                </div>
+                <div class="flex items-end">
+                  <button type="submit" class="w-full px-4 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm transition">
+                    <i class="fa-solid fa-user-plus mr-1"></i> Tambahkan Pemilih
+                  </button>
+                </div>
+              </div>
+
+              <!-- Checkbox Alokasi Surat Suara -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Alokasi Hak Surat Suara</label>
+                <div id="voter-category-checkboxes" class="flex flex-wrap gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                  <!-- Dynamic Checkboxes Loaded Here -->
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Voters Table -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h3 class="text-lg font-bold text-slate-800">Daftar Token Pemilih</h3>
+              <div class="flex items-center gap-2">
+                <span id="voter-count-badge" class="px-3 py-1 bg-custom-teal-light text-custom-teal text-xs font-bold rounded-full">Total: 0</span>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
+                  <tr>
+                    <th class="p-3">Nama Pemilih</th>
+                    <th class="p-3">Token</th>
+                    <th class="p-3">Hak Surat Suara</th>
+                    <th class="p-3">Status Voting</th>
+                    <th class="p-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="voters-table-body" class="divide-y divide-slate-100">
+                  <!-- Dynamic Content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL EDIT HAK AKSES VOTER -->
+  <div id="modal-edit-voter" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 class="text-lg font-bold text-slate-900 border-b pb-2">Edit Hak Surat Suara Pemilih</h3>
+      <p id="modal-edit-voter-name" class="text-sm font-semibold text-custom-teal"></p>
+      
+      <div id="modal-edit-category-checkboxes" class="space-y-2 bg-slate-50 p-3 rounded-lg border border-slate-200 max-h-60 overflow-y-auto">
+        <!-- Dynamic Category Checkboxes for Modal -->
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeEditVoterModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs">
+          Batal
+        </button>
+        <button onclick="saveVoterScopeEdit()" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">
+          Simpan Perubahan
+        </button>
+      </div>
     </div>
+  </div>
 
+  <!-- MODAL KONFIRMASI CUSTOM (PENGGANTI POPUP CONFIRM BROWSER DI GOOGLE SITES) -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-sm w-full rounded-2xl shadow-xl p-6 text-center space-y-4">
+      <div id="modal-confirm-icon" class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="modal-confirm-title" class="text-lg font-bold text-slate-900">Konfirmasi Tindakan</h3>
+      <p id="modal-confirm-msg" class="text-xs text-slate-600">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+      <div class="flex justify-center gap-2 pt-2">
+        <button id="modal-cancel-btn" onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs">
+          Batal
+        </button>
+        <button id="modal-confirm-btn" onclick="executePendingAction()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg text-xs shadow">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
 
-    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
-    <script>
-        // --- INITIAL DEFAULT DATA ---
-        const DEFAULT_CANDIDATES = [
-            {
-                id: 'cand-1',
-                name: 'Paslon 01 - Alex & Pertiwi',
-                photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-                desc: 'Inovasi Digital & Sinergi Kepemimpinan',
-                vision: '1. Mengembangkan sistem transparansi berbasis teknologi.\n2. Meningkatkan partisipasi aktif seluruh anggota.',
-                votes: 0
-            },
-            {
-                id: 'cand-2',
-                name: 'Paslon 02 - Rama & Sinta',
-                photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-                desc: 'Kepemimpinan Inklusif & Berkelanjutan',
-                vision: '1. Mewujudkan lingkungan kerja yang ramah dan kolaboratif.\n2. Optimalisasi potensi sumber daya manusia.',
-                votes: 0
-            }
-        ];
+  <!-- Footer dengan Logo Organisasi -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto space-y-4">
+    <div class="flex flex-wrap justify-center items-center gap-4 sm:gap-6 px-4">
+      <img id="logo-osis-footer" src="" alt="OSIS" class="h-10 w-auto object-contain transition hover:scale-110" title="OSIS">
+      <img id="logo-pradana-footer" src="" alt="Pradana Putra" class="h-10 w-auto object-contain transition hover:scale-110" title="Pradana Putra">
+      <img id="logo-pradani-footer" src="" alt="Pradani Putri" class="h-10 w-auto object-contain transition hover:scale-110" title="Pradani Putri">
+      <img id="logo-paskibra-footer" src="" alt="Paskibra" class="h-10 w-auto object-contain transition hover:scale-110" title="Paskibra">
+      <img id="logo-pmr-footer" src="" alt="PMR" class="h-10 w-auto object-contain transition hover:scale-110" title="PMR">
+    </div>
+    <div class="text-slate-400">
+      Pemilu Raya MTs Al Ishlah Panambangan &copy; 2026 - Aplikasi Pemilihan Digital
+    </div>
+  </footer>
 
-        const DEFAULT_TOKENS = [
-            { code: 'EV-1001', used: false },
-            { code: 'EV-1002', used: false },
-            { code: 'EV-1003', used: false },
-            { code: 'EV-1004', used: false },
-            { code: 'EV-1005', used: false }
-        ];
+  <!-- JS Logic -->
+  <script>
+    // ==================== LOGO ASSET MAP ====================
+    const LOGOS = {
+      mts: "https://lh3.googleusercontent.com/d/192V6gHuWqegn_QwL4XzalRrjuIh-V6Eo",
+      osis: "https://lh3.googleusercontent.com/d/12eNgFGFpcGIfzSYJUEu4hTPa7vdH5bbu",
+      pradana: "https://lh3.googleusercontent.com/d/1UjzbXa4YwkLk9B_wDmdFuUBzc2CBKNMx",
+      pradani: "https://lh3.googleusercontent.com/d/1d-OJG2MYrHvvoGZfbcVlMqgvSbXeaWj2",
+      paskibra: "https://lh3.googleusercontent.com/d/1oftmfE1uwyXTEBl70yRq3adwYkegD9ZY",
+      pmr: "https://lh3.googleusercontent.com/d/10X2mfCp4RjUcrZW0DGdQ0Sa4hWqb2jCN",
+      kpr: "https://lh3.googleusercontent.com/d/1X7KA1gmL0mES9JgGvxvePKhPGwtKDeQv"
+    };
 
-        const DEFAULT_SETTINGS = {
-            hideResults: false,
-            confirmVote: true
-        };
+    const CATEGORY_LOGOS = {
+      "cat-1": LOGOS.osis,
+      "cat-2": LOGOS.pradana,
+      "cat-3": LOGOS.pradani,
+      "cat-4": LOGOS.paskibra,
+      "cat-5": LOGOS.pmr
+    };
 
-        // --- GLOBAL STATE STORAGE ---
-        let appData = {
-            candidates: [],
-            tokens: [],
-            settings: {}
-        };
+    function loadLogos() {
+      document.getElementById('logo-mts-header').src = LOGOS.mts;
+      document.getElementById('logo-kpr-header').src = LOGOS.kpr;
 
-        let currentActiveToken = null;
-        let pendingCandidateChoice = null;
-        let chartInstance = null;
+      document.getElementById('logo-osis-footer').src = LOGOS.osis;
+      document.getElementById('logo-pradana-footer').src = LOGOS.pradana;
+      document.getElementById('logo-pradani-footer').src = LOGOS.pradani;
+      document.getElementById('logo-paskibra-footer').src = LOGOS.paskibra;
+      document.getElementById('logo-pmr-footer').src = LOGOS.pmr;
+    }
 
-        // --- APP INITIALIZATION ---
-        window.onload = function() {
-            loadStorageData();
-            lucide.createIcons();
-            checkAdminSession();
-            switchTab('voter');
-        };
+    // ==================== INITIAL DATA & STORAGE MANAGEMENT ====================
+    const DEFAULT_DATA = {
+      settings: {
+        title: "Pemilu Raya MTs Al Ishlah Panambangan 2026",
+        hideResults: false,
+        confirmVote: true,
+        startTime: "",
+        endTime: ""
+      },
+      categories: [
+        { id: "cat-1", name: "Pemilihan Ketua OSIS" },
+        { id: "cat-2", name: "Pemilihan Pradana (Pramuka Putra)" },
+        { id: "cat-3", name: "Pemilihan Pradani (Pramuka Putri)" },
+        { id: "cat-4", name: "Pemilihan Ketua Paskibra" },
+        { id: "cat-5", name: "Pemilihan Ketua PMR" }
+      ],
+      candidates: [
+        { id: "cand-1", categoryId: "cat-1", name: "Andi Pratama", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300", vision: "Mewujudkan sekolah digital, inklusif, dan berprestasi.", votes: 0 },
+        { id: "cand-2", categoryId: "cat-1", name: "Budi Santoso", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300", vision: "Mengembangkan potensi bakat & kewirausahaan siswa.", votes: 0 },
+        { id: "cand-3", categoryId: "cat-2", name: "Dimas Anggara", photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300", vision: "Pramuka tangguh, berkarakter, dan bersahabat.", votes: 0 },
+        { id: "cand-4", categoryId: "cat-2", name: "Eko Prasetyo", photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300", vision: "Meningkatkan kedisiplinan dan keterampilan kepramukaan.", votes: 0 },
+        { id: "cand-5", categoryId: "cat-3", name: "Siti Rahma", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300", vision: "Pramuka putri mandiri, kreatif, dan berwawasan lingkungan.", votes: 0 },
+        { id: "cand-6", categoryId: "cat-3", name: "Dewi Lestari", photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300", vision: "Kepemimpinan kepramukaan berbasis kekeluargaan.", votes: 0 },
+        { id: "cand-7", categoryId: "cat-4", name: "Fajar Nugraha", photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300", vision: "Paskibra berdisiplin tinggi dan berprestasi di tingkat kabupaten/provinsi.", votes: 0 },
+        { id: "cand-8", categoryId: "cat-5", name: "Rina Kartika", photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300", vision: "Tanggap kemanusiaan, sigap pertolongan pertama.", votes: 0 }
+      ],
+      voters: [
+        { name: "Ahmad Siswa (Siswa Laki-laki)", token: "EV-1001", hasVoted: false, assignedCategories: ["cat-1", "cat-2", "cat-4"] },
+        { name: "Anisa Siswi (Siswi Perempuan)", token: "EV-1002", hasVoted: false, assignedCategories: ["cat-1", "cat-3", "cat-5"] },
+        { name: "Bambang (Anggota OSIS Khusus)", token: "EV-1003", hasVoted: false, assignedCategories: ["cat-1"] }
+      ]
+    };
 
-        function loadStorageData() {
-            const candidates = localStorage.getItem('evote_candidates');
-            const tokens = localStorage.getItem('evote_tokens');
-            const settings = localStorage.getItem('evote_settings');
+    function getData() {
+      const store = localStorage.getItem('evoting_db');
+      if (!store) {
+        localStorage.setItem('evoting_db', JSON.stringify(DEFAULT_DATA));
+        return DEFAULT_DATA;
+      }
+      return JSON.parse(store);
+    }
 
-            appData.candidates = candidates ? JSON.parse(candidates) : DEFAULT_CANDIDATES;
-            appData.tokens = tokens ? JSON.parse(tokens) : DEFAULT_TOKENS;
-            appData.settings = settings ? JSON.parse(settings) : DEFAULT_SETTINGS;
+    function saveData(data) {
+      localStorage.setItem('evoting_db', JSON.stringify(data));
+      updateHeaderTitle();
+    }
 
-            saveStorageData();
+    // ==================== STATE MANAGEMENT ====================
+    let activeVoterToken = null;
+    let selectedVoterForEdit = null;
+    let pendingAction = null;
+
+    // ==================== INITIALIZATION ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      loadLogos();
+      updateHeaderTitle();
+      checkAdminSession();
+      renderVoterCategoryCheckboxes();
+    });
+
+    function updateHeaderTitle() {
+      const db = getData();
+      document.getElementById('header-app-title').innerText = db.settings.title || "Pemilu Raya MTs Al Ishlah Panambangan 2026";
+    }
+
+    // ==================== CUSTOM MODAL DIALOGS ====================
+    function openConfirmModal(title, msg, onConfirmAction, showCancel = true) {
+      document.getElementById('modal-confirm-title').innerText = title;
+      document.getElementById('modal-confirm-msg').innerText = msg;
+      pendingAction = onConfirmAction;
+
+      const cancelBtn = document.getElementById('modal-cancel-btn');
+      if (showCancel) {
+        cancelBtn.classList.remove('hidden');
+      } else {
+        cancelBtn.classList.add('hidden');
+      }
+
+      document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('modal-confirm').classList.add('hidden');
+      pendingAction = null;
+    }
+
+    function executePendingAction() {
+      const action = pendingAction;
+      closeConfirmModal();
+      if (action) action();
+    }
+
+    // ==================== TAB NAVIGATION ====================
+    function switchTab(tab) {
+      document.getElementById('sec-voter').classList.add('hidden');
+      document.getElementById('sec-results').classList.add('hidden');
+      document.getElementById('sec-admin').classList.add('hidden');
+
+      document.getElementById('tab-btn-voter').className = "px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/20 transition flex items-center gap-1.5";
+      document.getElementById('tab-btn-results').className = "px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/20 transition flex items-center gap-1.5";
+      document.getElementById('tab-btn-admin').className = "px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-white/20 transition flex items-center gap-1.5";
+
+      if (tab === 'voter') {
+        document.getElementById('sec-voter').classList.remove('hidden');
+        document.getElementById('tab-btn-voter').className = "px-3 py-1.5 rounded-lg text-sm font-medium bg-white/20 text-white transition flex items-center gap-1.5";
+      } else if (tab === 'results') {
+        document.getElementById('sec-results').classList.remove('hidden');
+        document.getElementById('tab-btn-results').className = "px-3 py-1.5 rounded-lg text-sm font-medium bg-white/20 text-white transition flex items-center gap-1.5";
+        renderResults();
+      } else if (tab === 'admin') {
+        document.getElementById('sec-admin').classList.remove('hidden');
+        document.getElementById('tab-btn-admin').className = "px-3 py-1.5 rounded-lg text-sm font-medium bg-white/20 text-white transition flex items-center gap-1.5";
+        checkAdminSession();
+      }
+    }
+
+    // ==================== VOTER SYSTEM ====================
+    function handleTokenSubmit(e) {
+      e.preventDefault();
+      const tokenInput = document.getElementById('input-voter-token').value.trim().toUpperCase();
+      const msgEl = document.getElementById('voter-token-msg');
+      const db = getData();
+
+      const now = new Date();
+      if (db.settings.startTime && new Date(db.settings.startTime) > now) {
+        showMsg(msgEl, "Pemilihan belum dibuka. Silakan cek kembali sesuai jadwal.", "text-amber-600");
+        return;
+      }
+      if (db.settings.endTime && new Date(db.settings.endTime) < now) {
+        showMsg(msgEl, "Pemilihan telah ditutup secara resmi.", "text-red-600");
+        return;
+      }
+
+      const voter = db.voters.find(v => v.token.toUpperCase() === tokenInput);
+
+      if (!voter) {
+        showMsg(msgEl, "Token tidak valid. Silakan periksa kembali token Anda.", "text-red-600");
+        return;
+      }
+
+      if (voter.hasVoted) {
+        showMsg(msgEl, "Token ini telah digunakan untuk memilih dan tidak dapat dipakai ulang.", "text-red-600");
+        return;
+      }
+
+      activeVoterToken = voter.token;
+      document.getElementById('voter-token-card').classList.add('hidden');
+      document.getElementById('voter-welcome-name').innerText = voter.name;
+      document.getElementById('voter-ballot-area').classList.remove('hidden');
+
+      renderBallot(voter);
+    }
+
+    function renderBallot(voter) {
+      const db = getData();
+      const container = document.getElementById('ballot-categories-list');
+      container.innerHTML = '';
+
+      const voterCategories = db.categories.filter(c => (voter.assignedCategories || []).includes(c.id));
+
+      if (voterCategories.length === 0) {
+        container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Anda tidak memiliki daftar surat suara yang dialokasikan. Silakan hubungi panitia.</div>`;
+        return;
+      }
+
+      voterCategories.forEach((cat, idx) => {
+        const candidates = db.candidates.filter(c => c.categoryId === cat.id);
+        const orgLogo = CATEGORY_LOGOS[cat.id] || LOGOS.mts;
+
+        let candHtml = '';
+        if (candidates.length === 0) {
+          candHtml = `<div class="p-4 bg-slate-50 text-slate-400 text-sm text-center rounded-xl">Belum ada kandidat pada kategori ini.</div>`;
+        } else {
+          candHtml = `
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${candidates.map(c => `
+                <label class="relative bg-slate-50 hover:bg-slate-100 p-4 rounded-xl border-2 border-slate-200 cursor-pointer transition flex flex-col justify-between space-y-3 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/50">
+                  <input type="radio" name="ballot-cat-${cat.id}" value="${c.id}" class="absolute top-4 right-4 w-5 h-5 text-teal-600 focus:ring-teal-500">
+                  <div class="space-y-3">
+                    <img src="${c.photo}" alt="${c.name}" class="w-full h-40 object-cover rounded-lg border border-slate-200">
+                    <div>
+                      <h4 class="font-bold text-slate-900 text-lg">${c.name}</h4>
+                      <p class="text-xs text-slate-500 mt-1"><strong>Visi & Misi:</strong> ${c.vision}</p>
+                    </div>
+                  </div>
+                  <div class="text-xs font-bold text-center text-custom-teal pt-2 border-t border-slate-200">
+                    Pilih Kandidat
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          `;
         }
 
-        function saveStorageData() {
-            localStorage.setItem('evote_candidates', JSON.stringify(appData.candidates));
-            localStorage.setItem('evote_tokens', JSON.stringify(appData.tokens));
-            localStorage.setItem('evote_settings', JSON.stringify(appData.settings));
+        container.innerHTML += `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b pb-4">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 bg-custom-gradient text-white rounded-full flex items-center justify-center text-sm font-bold shadow">${idx + 1}</span>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900">${cat.name}</h3>
+              </div>
+              <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                <img src="${LOGOS.kpr}" alt="KPR Logo" class="h-8 w-auto object-contain">
+                <img src="${orgLogo}" alt="Org Logo" class="h-8 w-auto object-contain">
+              </div>
+            </div>
+            ${candHtml}
+          </div>
+        `;
+      });
+    }
+
+    function triggerBallotSubmit() {
+      const db = getData();
+      const voter = db.voters.find(v => v.token === activeVoterToken);
+      const voterCategories = db.categories.filter(c => (voter.assignedCategories || []).includes(c.id));
+
+      let selectedVotes = [];
+      let missingCategory = false;
+
+      voterCategories.forEach(cat => {
+        const selected = document.querySelector(`input[name="ballot-cat-${cat.id}"]:checked`);
+        if (!selected) {
+          missingCategory = true;
+        } else {
+          selectedVotes.push(selected.value);
         }
+      });
 
-        // --- NAVIGATION & TABS ---
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('border-indigo-600', 'text-indigo-600', 'font-semibold');
-                tab.classList.add('border-transparent', 'text-slate-500');
-            });
+      if (missingCategory) {
+        openConfirmModal("Kategori Belum Lengkap", "Harap pilih salah satu kandidat pada setiap kategori surat suara yang diberikan!", null, false);
+        return;
+      }
 
-            const activeNav = document.getElementById(`nav-${tabName}`);
-            if (activeNav) {
-                activeNav.classList.remove('border-transparent', 'text-slate-500');
-                activeNav.classList.add('border-indigo-600', 'text-indigo-600', 'font-semibold');
-            }
+      if (db.settings.confirmVote) {
+        openConfirmModal("Kirim Suara", "Apakah Anda yakin dengan seluruh pilihan Anda? Suara yang telah dikirim tidak dapat diubah kembali.", () => {
+          executeBallotSubmission(selectedVotes, voter, db);
+        });
+      } else {
+        executeBallotSubmission(selectedVotes, voter, db);
+      }
+    }
 
-            document.getElementById(`view-${tabName}`).classList.remove('hidden');
-
-            if (tabName === 'results') {
-                renderResultsView();
-            } else if (tabName === 'admin') {
-                renderAdminDashboard();
-            }
-
-            lucide.createIcons();
+    function executeBallotSubmission(selectedVotes, voter, db) {
+      selectedVotes.forEach(candId => {
+        const candidate = db.candidates.find(c => c.id === candId);
+        if (candidate) {
+          candidate.votes = (candidate.votes || 0) + 1;
         }
+      });
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
+      voter.hasVoted = true;
+      saveData(db);
 
-        // --- TOAST NOTIFICATION ---
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const bgClass = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-600' : 'bg-slate-900';
-            
-            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-lg text-xs font-medium flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0`;
-            toast.innerHTML = `
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      openConfirmModal("Suara Terkirim!", "Terima kasih! Suara Anda telah berhasil dikirim dan tersimpan secara sah.", () => {
+        location.reload();
+      }, false);
+    }
+
+    // ==================== RESULTS SYSTEM ====================
+    function renderResults() {
+      const db = getData();
+      const container = document.getElementById('results-content-area');
+      const hiddenCard = document.getElementById('results-hidden-card');
+
+      if (db.settings.hideResults) {
+        container.innerHTML = '';
+        hiddenCard.classList.remove('hidden');
+        return;
+      }
+
+      hiddenCard.classList.add('hidden');
+      container.innerHTML = '';
+
+      db.categories.forEach(cat => {
+        const candidates = db.candidates.filter(c => c.categoryId === cat.id);
+        const totalCategoryVotes = candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
+        const orgLogo = CATEGORY_LOGOS[cat.id] || LOGOS.mts;
+
+        let candidatesHtml = '';
+        if (candidates.length === 0) {
+          candidatesHtml = `<div class="p-4 text-xs text-slate-400 text-center">Belum ada kandidat.</div>`;
+        } else {
+          candidatesHtml = candidates.map(c => {
+            const percentage = totalCategoryVotes > 0 ? ((c.votes || 0) / totalCategoryVotes * 100).toFixed(1) : 0;
+            return `
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-sm font-semibold">
+                  <span class="text-slate-800">${c.name}</span>
+                  <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
+                  <div class="bg-custom-gradient h-3.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                </div>
+              </div>
             `;
-            
-            container.appendChild(toast);
-            lucide.createIcons();
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
+          }).join('');
         }
 
-        // ==================== VOTER MODULE ====================
+        container.innerHTML += `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+              <div class="flex items-center gap-3">
+                <img src="${orgLogo}" alt="Logo" class="h-7 w-auto object-contain">
+                <h3 class="text-lg font-bold text-slate-900">${cat.name}</h3>
+              </div>
+              <span class="text-xs bg-custom-teal-light text-custom-teal px-3 py-1 rounded-full font-bold">Total Suara: ${totalCategoryVotes}</span>
+            </div>
+            <div class="space-y-4">
+              ${candidatesHtml}
+            </div>
+          </div>
+        `;
+      });
+    }
 
-        function handleTokenSubmit(e) {
-            e.preventDefault();
-            const input = document.getElementById('voter-token-input').value.trim().toUpperCase();
-            
-            const tokenObj = appData.tokens.find(t => t.code === input);
+    // ==================== ADMIN SYSTEM ====================
+    function checkAdminSession() {
+      const isAdmin = sessionStorage.getItem('isAdminLoggedIn');
+      if (isAdmin === 'true') {
+        document.getElementById('admin-login-card').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.add('flex');
+        loadAdminData();
+      } else {
+        document.getElementById('admin-login-card').classList.remove('hidden');
+        document.getElementById('admin-dashboard').classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden');
+        document.getElementById('logout-btn').classList.remove('flex');
+      }
+    }
 
-            if (!tokenObj) {
-                showToast('Token tidak valid atau tidak terdaftar!', 'error');
-                return;
-            }
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('admin-user').value;
+      const p = document.getElementById('admin-pass').value;
+      const msg = document.getElementById('admin-login-msg');
 
-            if (tokenObj.used) {
-                showToast('Token ini sudah digunakan untuk memilih!', 'error');
-                return;
-            }
+      if (u === 'admin' && p === 'password123') {
+        sessionStorage.setItem('isAdminLoggedIn', 'true');
+        checkAdminSession();
+      } else {
+        showMsg(msg, "Username atau password salah!", "text-red-600");
+      }
+    }
 
-            // Valid token -> Proceed
-            currentActiveToken = input;
-            document.getElementById('active-voter-token').innerText = input;
-            
-            document.getElementById('voter-step-token').classList.add('hidden');
-            document.getElementById('voter-step-ballot').classList.remove('hidden');
-            renderBallotCandidates();
-            showToast('Token berhasil dikonfirmasi. Silakan pilih kandidat.', 'success');
+    function adminLogout() {
+      sessionStorage.removeItem('isAdminLoggedIn');
+      checkAdminSession();
+      switchTab('voter');
+    }
+
+    function switchAdminMenu(menu) {
+      const pages = document.querySelectorAll('.admin-sub-page');
+      pages.forEach(p => p.classList.add('hidden'));
+
+      const btns = ['setting', 'datetime', 'ballot', 'voters'];
+      btns.forEach(b => {
+        const btnEl = document.getElementById(`admin-menu-btn-${b}`);
+        btnEl.className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2";
+      });
+
+      document.getElementById(`admin-sub-${menu}`).classList.remove('hidden');
+      document.getElementById(`admin-menu-btn-${menu}`).className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2";
+
+      if (menu === 'voters') renderVoterCategoryCheckboxes();
+    }
+
+    function loadAdminData() {
+      const db = getData();
+      
+      document.getElementById('setting-title').value = db.settings.title || '';
+      document.getElementById('setting-hide-results').checked = db.settings.hideResults || false;
+      document.getElementById('setting-confirm-vote').checked = db.settings.confirmVote || false;
+
+      document.getElementById('datetime-start').value = db.settings.startTime || '';
+      document.getElementById('datetime-end').value = db.settings.endTime || '';
+
+      renderAdminCategoriesAndCandidates();
+      renderVotersTable();
+      renderVoterCategoryCheckboxes();
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      const db = getData();
+      db.settings.title = document.getElementById('setting-title').value;
+      db.settings.hideResults = document.getElementById('setting-hide-results').checked;
+      db.settings.confirmVote = document.getElementById('setting-confirm-vote').checked;
+      saveData(db);
+      openConfirmModal("Tersimpan!", "Pengaturan umum berhasil disimpan.", null, false);
+    }
+
+    function saveDateTime(e) {
+      e.preventDefault();
+      const db = getData();
+      db.settings.startTime = document.getElementById('datetime-start').value;
+      db.settings.endTime = document.getElementById('datetime-end').value;
+      saveData(db);
+      openConfirmModal("Tersimpan!", "Jadwal operasional berhasil disimpan.", null, false);
+    }
+
+    function addCategory(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('input-cat-name');
+      const db = getData();
+
+      const newCategory = {
+        id: 'cat-' + Date.now(),
+        name: nameInput.value.trim()
+      };
+
+      db.categories.push(newCategory);
+      saveData(db);
+      nameInput.value = '';
+      renderAdminCategoriesAndCandidates();
+      renderVoterCategoryCheckboxes();
+    }
+
+    function deleteCategory(catId) {
+      openConfirmModal(
+        "Hapus Kategori", 
+        "Menghapus kategori ini juga akan menghapus seluruh kandidat di dalamnya. Lanjutkan?", 
+        () => {
+          const db = getData();
+          db.categories = db.categories.filter(c => c.id !== catId);
+          db.candidates = db.candidates.filter(c => c.categoryId !== catId);
+          db.voters.forEach(v => {
+            v.assignedCategories = (v.assignedCategories || []).filter(id => id !== catId);
+          });
+          saveData(db);
+          renderAdminCategoriesAndCandidates();
+          renderVoterCategoryCheckboxes();
         }
+      );
+    }
 
-        function renderBallotCandidates() {
-            const container = document.getElementById('ballot-candidate-list');
-            container.innerHTML = '';
+    function addCandidate(e, catId) {
+      e.preventDefault();
+      const form = e.target;
+      const db = getData();
 
-            appData.candidates.forEach((cand, index) => {
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col";
-                card.innerHTML = `
-                    <div class="relative h-48 bg-slate-100 overflow-hidden">
-                        <img src="${cand.photo}" alt="${cand.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/e2e8f0/64748b?text=Foto+Kandidat'">
-                        <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur text-white font-mono text-xs px-2.5 py-1 rounded-lg">No. ${index + 1}</span>
+      const newCand = {
+        id: 'cand-' + Date.now(),
+        categoryId: catId,
+        name: form.elements['candName'].value,
+        photo: form.elements['candPhoto'].value || 'https://via.placeholder.com/300',
+        vision: form.elements['candVision'].value,
+        votes: 0
+      };
+
+      db.candidates.push(newCand);
+      saveData(db);
+      renderAdminCategoriesAndCandidates();
+    }
+
+    function deleteCandidate(candId) {
+      openConfirmModal(
+        "Hapus Kandidat", 
+        "Apakah Anda yakin ingin menghapus kandidat ini?", 
+        () => {
+          const db = getData();
+          db.candidates = db.candidates.filter(c => c.id !== candId);
+          saveData(db);
+          renderAdminCategoriesAndCandidates();
+        }
+      );
+    }
+
+    function renderAdminCategoriesAndCandidates() {
+      const db = getData();
+      const container = document.getElementById('admin-categories-container');
+      container.innerHTML = '';
+
+      if (db.categories.length === 0) {
+        container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Belum ada kategori pemilihan. Silakan buat di atas.</div>`;
+        return;
+      }
+
+      db.categories.forEach(cat => {
+        const candidates = db.candidates.filter(c => c.categoryId === cat.id);
+
+        container.innerHTML += `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+              <h4 class="text-lg font-bold text-slate-900">${cat.name}</h4>
+              <button onclick="deleteCategory('${cat.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold">
+                <i class="fa-solid fa-trash"></i> Hapus Kategori
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${candidates.map(c => `
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <img src="${c.photo}" class="w-12 h-12 object-cover rounded-lg">
+                    <div>
+                      <div class="font-bold text-sm text-slate-800">${c.name}</div>
+                      <div class="text-xs text-slate-500 truncate max-w-[150px]">${c.vision}</div>
                     </div>
-                    <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-                        <div>
-                            <h3 class="font-bold text-slate-900 text-lg">${cand.name}</h3>
-                            <p class="text-xs text-indigo-600 font-medium mt-0.5">${cand.desc}</p>
-                            <div class="mt-3 pt-3 border-t border-slate-100">
-                                <span class="text-[11px] font-semibold uppercase text-slate-400 block mb-1">Visi & Misi</span>
-                                <p class="text-xs text-slate-600 whitespace-pre-line leading-relaxed">${cand.vision}</p>
-                            </div>
-                        </div>
-                        <button onclick="initiateVote('${cand.id}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                            <i data-lucide="check" class="w-4 h-4"></i> Pilih Kandidat Ini
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            lucide.createIcons();
+                  </div>
+                  <button onclick="deleteCandidate('${c.id}')" class="text-red-500 hover:text-red-700 p-1">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+
+            <form onsubmit="addCandidate(event, '${cat.id}')" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
+              <span class="text-xs font-bold text-slate-600 uppercase">Tambah Kandidat ke ${cat.name}</span>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <input type="text" name="candName" placeholder="Nama Kandidat" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+                <input type="url" name="candPhoto" placeholder="URL Foto Kandidat" class="px-3 py-2 text-xs rounded-lg border outline-none">
+                <input type="text" name="candVision" placeholder="Visi & Misi Ringkas" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+              </div>
+              <button type="submit" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">
+                + Simpan Kandidat
+              </button>
+            </form>
+          </div>
+        `;
+      });
+    }
+
+    function renderVoterCategoryCheckboxes() {
+      const db = getData();
+      const container = document.getElementById('voter-category-checkboxes');
+      container.innerHTML = '';
+
+      if (db.categories.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-400">Belum ada kategori surat suara. Tambahkan pada Menu Kotak Suara terlebih dahulu.</span>`;
+        return;
+      }
+
+      db.categories.forEach(cat => {
+        container.innerHTML += `
+          <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-md border border-slate-200 text-xs font-medium text-slate-700">
+            <input type="checkbox" name="voter-cat-scope" value="${cat.id}" checked class="w-4 h-4 text-teal-600 rounded">
+            <span>${cat.name}</span>
+          </label>
+        `;
+      });
+    }
+
+    function addVoter(e) {
+      e.preventDefault();
+      const name = document.getElementById('input-voter-name').value.trim();
+      const token = document.getElementById('input-voter-token-reg').value.trim().toUpperCase();
+      const db = getData();
+
+      if (db.voters.some(v => v.token.toUpperCase() === token)) {
+        openConfirmModal("Token Sudah Ada", "Token ini sudah terdaftar. Gunakan token lain!", null, false);
+        return;
+      }
+
+      const selectedScope = Array.from(document.querySelectorAll('input[name="voter-cat-scope"]:checked')).map(cb => cb.value);
+
+      db.voters.push({
+        name: name,
+        token: token,
+        hasVoted: false,
+        assignedCategories: selectedScope
+      });
+
+      saveData(db);
+      document.getElementById('input-voter-name').value = '';
+      document.getElementById('input-voter-token-reg').value = '';
+      renderVotersTable();
+    }
+
+    function generateRandomToken() {
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('input-voter-token-reg').value = `EV-${rand}`;
+    }
+
+    function deleteVoter(token) {
+      openConfirmModal(
+        "Hapus Pemilih", 
+        `Apakah Anda yakin ingin menghapus pemilih dengan token ${token}?`, 
+        () => {
+          const db = getData();
+          db.voters = db.voters.filter(v => v.token !== token);
+          saveData(db);
+          renderVotersTable();
         }
+      );
+    }
 
-        function initiateVote(candidateId) {
-            const cand = appData.candidates.find(c => c.id === candidateId);
-            if (!cand) return;
+    function renderVotersTable() {
+      const db = getData();
+      const tbody = document.getElementById('voters-table-body');
+      document.getElementById('voter-count-badge').innerText = `Total: ${db.voters.length}`;
+      tbody.innerHTML = '';
 
-            pendingCandidateChoice = cand;
+      if (db.voters.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada pemilih terdaftar.</td></tr>`;
+        return;
+      }
 
-            if (appData.settings.confirmVote) {
-                document.getElementById('confirm-candidate-summary').innerText = cand.name;
-                document.getElementById('btn-execute-vote').onclick = () => executeVote(candidateId);
-                document.getElementById('modal-confirm-vote').classList.remove('hidden');
-            } else {
-                executeVote(candidateId);
-            }
+      db.voters.forEach(v => {
+        const assignedCats = db.categories.filter(c => (v.assignedCategories || []).includes(c.id));
+        const catBadges = assignedCats.map(c => `<span class="inline-block bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded border border-slate-200 mr-1 mb-1">${c.name}</span>`).join('');
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">${v.name}</td>
+            <td class="p-3 font-mono font-bold text-custom-teal">${v.token}</td>
+            <td class="p-3 max-w-xs">${catBadges || '<span class="text-xs text-red-400">Tidak ada</span>'}</td>
+            <td class="p-3">
+              ${v.hasVoted 
+                ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold"><i class="fa-solid fa-check"></i> Sudah Memilih</span>'
+                : '<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold"><i class="fa-solid fa-clock"></i> Belum</span>'}
+            </td>
+            <td class="p-3 text-right space-x-2">
+              <button onclick="openEditVoterModal('${v.token}')" class="text-custom-teal hover:underline font-semibold text-xs">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Surat Suara
+              </button>
+              <button onclick="deleteVoter('${v.token}')" class="text-red-500 hover:text-red-700 font-semibold text-xs">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openEditVoterModal(token) {
+      const db = getData();
+      selectedVoterForEdit = db.voters.find(v => v.token === token);
+      if (!selectedVoterForEdit) return;
+
+      document.getElementById('modal-edit-voter-name').innerText = `${selectedVoterForEdit.name} (${selectedVoterForEdit.token})`;
+      
+      const container = document.getElementById('modal-edit-category-checkboxes');
+      container.innerHTML = '';
+
+      db.categories.forEach(cat => {
+        const isChecked = (selectedVoterForEdit.assignedCategories || []).includes(cat.id);
+        container.innerHTML += `
+          <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded transition text-xs font-medium text-slate-700">
+            <input type="checkbox" name="edit-voter-cat-scope" value="${cat.id}" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-teal-600 rounded">
+            <span>${cat.name}</span>
+          </label>
+        `;
+      });
+
+      document.getElementById('modal-edit-voter').classList.remove('hidden');
+    }
+
+    function closeEditVoterModal() {
+      document.getElementById('modal-edit-voter').classList.add('hidden');
+      selectedVoterForEdit = null;
+    }
+
+    function saveVoterScopeEdit() {
+      if (!selectedVoterForEdit) return;
+      const db = getData();
+      const voter = db.voters.find(v => v.token === selectedVoterForEdit.token);
+
+      if (voter) {
+        const selectedScope = Array.from(document.querySelectorAll('input[name="edit-voter-cat-scope"]:checked')).map(cb => cb.value);
+        voter.assignedCategories = selectedScope;
+        saveData(db);
+        renderVotersTable();
+      }
+
+      closeEditVoterModal();
+    }
+
+    function requestResetAllData() {
+      openConfirmModal(
+        "Reset Seluruh Data", 
+        "Apakah Anda yakin ingin mengembalikan seluruh sistem ke data awal? Seluruh suara dan data pemilih akan terhapus secara permanen.", 
+        () => {
+          localStorage.removeItem('evoting_db');
+          location.reload();
         }
+      );
+    }
 
-        function closeConfirmModal() {
-            document.getElementById('modal-confirm-vote').classList.add('hidden');
-        }
-
-        function executeVote(candidateId) {
-            closeConfirmModal();
-
-            // Record Vote
-            const cand = appData.candidates.find(c => c.id === candidateId);
-            if (cand) {
-                cand.votes = (cand.votes || 0) + 1;
-            }
-
-            // Mark Token Used
-            const tokenObj = appData.tokens.find(t => t.code === currentActiveToken);
-            if (tokenObj) {
-                tokenObj.used = true;
-            }
-
-            saveStorageData();
-
-            // UI Transition
-            document.getElementById('voter-step-ballot').classList.add('hidden');
-            document.getElementById('voter-step-success').classList.remove('hidden');
-            showToast('Pilihan Anda berhasil disimpan!', 'success');
-        }
-
-        function resetVoterScreen() {
-            currentActiveToken = null;
-            pendingCandidateChoice = null;
-            document.getElementById('voter-token-input').value = '';
-            document.getElementById('voter-step-success').classList.add('hidden');
-            document.getElementById('voter-step-token').classList.remove('hidden');
-        }
-
-
-        // ==================== RESULTS MODULE ====================
-
-        function renderResultsView() {
-            const hiddenBanner = document.getElementById('results-hidden-banner');
-            const visibleContainer = document.getElementById('results-visible-container');
-
-            if (appData.settings.hideResults) {
-                hiddenBanner.classList.remove('hidden');
-                visibleContainer.classList.add('hidden');
-                return;
-            }
-
-            hiddenBanner.classList.add('hidden');
-            visibleContainer.classList.remove('hidden');
-
-            // Compute Stats
-            const totalVotes = appData.candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
-
-            // Render Progress Cards
-            const progressCardsContainer = document.getElementById('results-progress-cards');
-            progressCardsContainer.innerHTML = '';
-
-            appData.candidates.forEach((cand, idx) => {
-                const count = cand.votes || 0;
-                const percentage = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
-
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3";
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
-                            <div>
-                                <h4 class="font-bold text-slate-900 text-sm">${cand.name}</h4>
-                                <span class="text-xs text-slate-500">${count} Suara</span>
-                            </div>
-                        </div>
-                        <span class="text-base font-extrabold text-indigo-600">${percentage}%</span>
-                    </div>
-                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                        <div class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
-                    </div>
-                `;
-                progressCardsContainer.appendChild(card);
-            });
-
-            // Render Chart.js
-            renderResultsChart();
-        }
-
-        function renderResultsChart() {
-            const ctx = document.getElementById('resultsChart').getContext('2d');
-            
-            const labels = appData.candidates.map(c => c.name);
-            const dataCounts = appData.candidates.map(c => c.votes || 0);
-
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Jumlah Suara',
-                        data: dataCounts,
-                        backgroundColor: '#4f46e5',
-                        borderRadius: 8,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { precision: 0 }
-                        }
-                    }
-                }
-            });
-        }
-
-
-        // ==================== ADMIN MODULE ====================
-
-        function checkAdminSession() {
-            const isAdmin = sessionStorage.getItem('evote_admin_logged');
-            const badge = document.getElementById('admin-status-badge');
-
-            if (isAdmin === 'true') {
-                badge.classList.remove('hidden');
-                badge.classList.add('flex');
-            } else {
-                badge.classList.add('hidden');
-                badge.classList.remove('flex');
-            }
-        }
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const user = document.getElementById('admin-user').value.trim();
-            const pass = document.getElementById('admin-pass').value.trim();
-
-            if (user === 'admin' && pass === 'password123') {
-                sessionStorage.setItem('evote_admin_logged', 'true');
-                checkAdminSession();
-                renderAdminDashboard();
-                showToast('Login admin berhasil!', 'success');
-            } else {
-                showToast('Username atau password admin salah!', 'error');
-            }
-        }
-
-        function adminLogout() {
-            sessionStorage.removeItem('evote_admin_logged');
-            checkAdminSession();
-            renderAdminDashboard();
-            showToast('Admin telah logout.');
-        }
-
-        function renderAdminDashboard() {
-            const isAdmin = sessionStorage.getItem('evote_admin_logged') === 'true';
-
-            const loginScreen = document.getElementById('admin-login-screen');
-            const dashScreen = document.getElementById('admin-dashboard-screen');
-
-            if (!isAdmin) {
-                loginScreen.classList.remove('hidden');
-                dashScreen.classList.add('hidden');
-                return;
-            }
-
-            loginScreen.classList.add('hidden');
-            dashScreen.classList.remove('hidden');
-
-            // Render Stats Overview
-            const totalTokens = appData.tokens.length;
-            const usedTokens = appData.tokens.filter(t => t.used).length;
-            const unusedTokens = totalTokens - usedTokens;
-            const participation = totalTokens > 0 ? ((usedTokens / totalTokens) * 100).toFixed(1) : 0;
-
-            document.getElementById('stat-total-tokens').innerText = totalTokens;
-            document.getElementById('stat-used-tokens').innerText = usedTokens;
-            document.getElementById('stat-unused-tokens').innerText = unusedTokens;
-            document.getElementById('stat-participation').innerText = `${participation}%`;
-
-            // Render Settings Checkboxes
-            document.getElementById('setting-hide-results').checked = !!appData.settings.hideResults;
-            document.getElementById('setting-confirm-vote').checked = !!appData.settings.confirmVote;
-
-            // Render Candidates List
-            renderAdminCandidatesList();
-
-            // Render Tokens Table
-            renderTokenTable();
-        }
-
-        // CANDIDATES MANAGEMENT
-        function renderAdminCandidatesList() {
-            const container = document.getElementById('admin-candidates-list');
-            container.innerHTML = '';
-
-            appData.candidates.forEach((cand, idx) => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50 hover:bg-white transition";
-                item.innerHTML = `
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <img src="${cand.photo}" class="w-10 h-10 rounded-lg object-cover bg-slate-200 flex-shrink-0" onerror="this.src='https://placehold.co/100x100/e2e8f0/64748b?text=Candidate'">
-                        <div class="truncate">
-                            <h4 class="font-bold text-slate-900 text-xs truncate">${cand.name}</h4>
-                            <span class="text-[11px] text-slate-500 block truncate">${cand.votes || 0} Suara</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="openCandidateModal('${cand.id}')" class="p-1.5 text-slate-500 hover:text-indigo-600 rounded-md">
-                            <i data-lucide="edit-2" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="deleteCandidate('${cand.id}')" class="p-1.5 text-slate-500 hover:text-red-600 rounded-md">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-            lucide.createIcons();
-        }
-
-        function openCandidateModal(candId = null) {
-            const modal = document.getElementById('modal-candidate');
-            const title = document.getElementById('modal-candidate-title');
-
-            if (candId) {
-                const cand = appData.candidates.find(c => c.id === candId);
-                if (!cand) return;
-                title.innerText = "Edit Kandidat";
-                document.getElementById('candidate-id').value = cand.id;
-                document.getElementById('candidate-name').value = cand.name;
-                document.getElementById('candidate-photo').value = cand.photo;
-                document.getElementById('candidate-desc').value = cand.desc;
-                document.getElementById('candidate-vision').value = cand.vision;
-            } else {
-                title.innerText = "Tambah Kandidat Baru";
-                document.getElementById('candidate-id').value = '';
-                document.getElementById('candidate-name').value = '';
-                document.getElementById('candidate-photo').value = '';
-                document.getElementById('candidate-desc').value = '';
-                document.getElementById('candidate-vision').value = '';
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeCandidateModal() {
-            document.getElementById('modal-candidate').classList.add('hidden');
-        }
-
-        function saveCandidate(e) {
-            e.preventDefault();
-            const id = document.getElementById('candidate-id').value;
-            const name = document.getElementById('candidate-name').value.trim();
-            const photo = document.getElementById('candidate-photo').value.trim();
-            const desc = document.getElementById('candidate-desc').value.trim();
-            const vision = document.getElementById('candidate-vision').value.trim();
-
-            if (id) {
-                // Edit
-                const cand = appData.candidates.find(c => c.id === id);
-                if (cand) {
-                    cand.name = name;
-                    cand.photo = photo;
-                    cand.desc = desc;
-                    cand.vision = vision;
-                }
-            } else {
-                // Create
-                const newCand = {
-                    id: 'cand-' + Date.now(),
-                    name,
-                    photo,
-                    desc,
-                    vision,
-                    votes: 0
-                };
-                appData.candidates.push(newCand);
-            }
-
-            saveStorageData();
-            closeCandidateModal();
-            renderAdminDashboard();
-            showToast('Data kandidat berhasil disimpan!', 'success');
-        }
-
-        function deleteCandidate(candId) {
-            if (confirm('Apakah Anda yakin ingin menghapus kandidat ini?')) {
-                appData.candidates = appData.candidates.filter(c => c.id !== candId);
-                saveStorageData();
-                renderAdminDashboard();
-                showToast('Kandidat berhasil dihapus.');
-            }
-        }
-
-        // TOKEN GENERATION & MANAGEMENT
-        function generateTokens() {
-            const countInput = document.getElementById('token-count-input');
-            const count = parseInt(countInput.value) || 10;
-
-            for (let i = 0; i < count; i++) {
-                const randomHex = Math.random().toString(36).substring(2, 6).toUpperCase();
-                const code = `EV-${randomHex}`;
-                if (!appData.tokens.some(t => t.code === code)) {
-                    appData.tokens.push({ code, used: false });
-                }
-            }
-
-            saveStorageData();
-            renderAdminDashboard();
-            showToast(`${count} token baru berhasil dibuat!`, 'success');
-        }
-
-        function renderTokenTable() {
-            const tbody = document.getElementById('token-table-body');
-            const searchQuery = document.getElementById('token-search').value.toLowerCase();
-            
-            tbody.innerHTML = '';
-
-            const filteredTokens = appData.tokens.filter(t => t.code.toLowerCase().includes(searchQuery));
-            document.getElementById('token-filter-count').innerText = filteredTokens.length;
-
-            if (filteredTokens.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400">Tidak ada token ditemukan.</td></tr>`;
-                return;
-            }
-
-            filteredTokens.forEach((token, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50";
-                tr.innerHTML = `
-                    <td class="px-4 py-3 font-mono text-slate-400">${index + 1}</td>
-                    <td class="px-4 py-3 font-mono font-bold text-slate-800">${token.code}</td>
-                    <td class="px-4 py-3">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${token.used ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}">
-                            ${token.used ? 'Sudah Memilih' : 'Belum Memilih'}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <button onclick="deleteSingleToken('${token.code}')" class="text-slate-400 hover:text-red-600 transition" title="Hapus Token">
-                            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
-
-        function deleteSingleToken(code) {
-            appData.tokens = appData.tokens.filter(t => t.code !== code);
-            saveStorageData();
-            renderAdminDashboard();
-            showToast(`Token ${code} berhasil dihapus.`);
-        }
-
-        function clearTokens() {
-            if (confirm('Hapus seluruh token pemilih?')) {
-                appData.tokens = [];
-                saveStorageData();
-                renderAdminDashboard();
-                showToast('Seluruh token telah dihapus.');
-            }
-        }
-
-        function copyUnusedTokens() {
-            const unusedCodes = appData.tokens.filter(t => !t.used).map(t => t.code).join('\n');
-            if (!unusedCodes) {
-                showToast('Tidak ada token belum dipakai.', 'error');
-                return;
-            }
-
-            const tempInput = document.createElement('textarea');
-            tempInput.value = unusedCodes;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-
-            showToast('Daftar token belum dipakai berhasil disalin ke clipboard!', 'success');
-        }
-
-        // SETTINGS & SYSTEM RESET
-        function toggleSetting(settingKey) {
-            if (settingKey === 'hideResults') {
-                appData.settings.hideResults = document.getElementById('setting-hide-results').checked;
-            } else if (settingKey === 'confirmVote') {
-                appData.settings.confirmVote = document.getElementById('setting-confirm-vote').checked;
-            }
-            saveStorageData();
-            showToast('Pengaturan berhasil diperbarui!', 'success');
-        }
-
-        function resetSystemData() {
-            if (confirm('PERINGATAN: Ini akan menghapus seluruh data suara, kandidat, dan token! Apakah Anda yakin?')) {
-                localStorage.removeItem('evote_candidates');
-                localStorage.removeItem('evote_tokens');
-                localStorage.removeItem('evote_settings');
-                loadStorageData();
-                renderAdminDashboard();
-                showToast('Seluruh data sistem berhasil direset!', 'success');
-            }
-        }
-    </script>
+    function showMsg(el, text, colorClass) {
+      el.className = `mt-4 text-center text-sm font-medium ${colorClass}`;
+      el.innerText = text;
+      el.classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
