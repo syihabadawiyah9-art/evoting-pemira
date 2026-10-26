@@ -1,1 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bilik Suara & Hasil Pemilu Raya MTs Al Ishlah Panambangan 2026</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    
+    .bg-custom-gradient {
+      background: linear-gradient(135deg, #012c2e 0%, #014a48 50%, #078f87 100%);
+    }
+    .text-custom-teal { color: #078f87; }
+    .bg-custom-teal-light { background-color: #e6f4f3; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
+  <!-- Header Navigasi Voters -->
+  <header class="bg-custom-gradient text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
+          <img id="logo-mts-header" src="" alt="Logo MTs Al Ishlah" class="h-10 w-auto object-contain">
+          <img id="logo-kpr-header" src="" alt="Logo KPR" class="h-10 w-auto object-contain">
+        </div>
+        <div>
+          <h1 id="header-app-title" class="text-base sm:text-lg font-bold leading-tight">Pemilu Raya MTs Al Ishlah Panambangan 2026</h1>
+          <p class="text-xs text-teal-200">Portal Pemilihan Digital Mandiri</p>
+        </div>
+      </div>
+
+      <!-- Tab Switcher Publik: Bilik Suara vs Hasil Suara -->
+      <nav class="flex items-center space-x-2">
+        <button onclick="switchVoterTab('ballot')" id="tab-btn-ballot" class="px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-white/20 text-white transition flex items-center gap-1.5">
+          <i class="fa-solid fa-vote-yea"></i> Bilik Suara
+        </button>
+        <button onclick="switchVoterTab('results')" id="tab-btn-results" class="px-3.5 py-1.5 rounded-lg text-sm font-semibold hover:bg-white/20 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-column"></i> Hasil Suara
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- Loading Bar Realtime Firebase -->
+    <div id="cloud-loading-bar" class="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white text-[11px] font-bold text-center py-1 transition-all">
+      <i class="fa-solid fa-sync fa-spin mr-1"></i> Menghubungkan ke Server Cloud Firebase...
+    </div>
+
+    <!-- ==================== VIEW 1: BILIK SUARA ==================== -->
+    <section id="view-voter-ballot" class="space-y-6">
+      
+      <!-- Card Entry Token -->
+      <div id="voter-token-card" class="max-w-md mx-auto mt-8 bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 bg-custom-teal-light text-custom-teal rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-slate-900">Masuk Bilik Suara</h2>
+          <p class="text-sm text-slate-500 mt-1">Masukkan Token Unik Pemilih Anda untuk memulai suara.</p>
+        </div>
+
+        <form onsubmit="handleTokenSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-2 text-center">Token Pemilih</label>
+            <input type="text" id="input-voter-token" required placeholder="EV-1001" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-600 focus:border-teal-600 outline-none uppercase font-mono text-center text-xl tracking-widest font-bold">
+          </div>
+          <button type="submit" class="w-full bg-custom-gradient hover:opacity-95 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2">
+            <span>Buka Surat Suara</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+        <div id="voter-token-msg" class="mt-4 text-center text-sm font-semibold hidden"></div>
+      </div>
+
+      <!-- Area Surat Suara Dinamis (Muncul setelah Token Valid) -->
+      <div id="voter-ballot-area" class="hidden space-y-8">
+        
+        <!-- Banner Pemilih -->
+        <div class="bg-custom-teal-light border border-teal-200 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <div class="text-xs font-bold text-custom-teal uppercase tracking-wider">Pemilih Terverifikasi</div>
+            <div id="voter-welcome-name" class="text-xl font-bold text-slate-800">Nama Pemilih</div>
+            <div class="text-xs text-slate-500 mt-0.5">Silakan pilih kandidat pada setiap kategori surat suara yang diberikan di bawah ini.</div>
+          </div>
+          <div class="flex items-center gap-2 text-xs bg-teal-200/60 text-slate-800 px-3 py-1.5 rounded-full font-mono font-semibold">
+            <i class="fa-solid fa-shield-halved text-custom-teal"></i> Sesi Akses Sah
+          </div>
+        </div>
+
+        <!-- Daftar Surat Suara Kategori -->
+        <div id="ballot-categories-list" class="space-y-8"></div>
+
+        <!-- Tombol Kirim Suara -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 text-center space-y-3">
+          <p class="text-sm text-slate-600">Pastikan Anda telah menentukan pilihan pada seluruh kategori surat suara yang tersedia.</p>
+          <button onclick="triggerBallotSubmit()" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-emerald-200 transition transform active:scale-95 inline-flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> Kirim Seluruh Suara Saya
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 2: HASIL SUARA PUBLIK ==================== -->
+    <section id="view-voter-results" class="hidden space-y-6">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Hasil Perolehan Suara</h2>
+          <p class="text-sm text-slate-500">Hasil perolehan suara dan statistik partisipasi secara real-time.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1.5 bg-teal-100 text-custom-teal rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt"></i> Live Realtime Cloud
+          </span>
+        </div>
+      </div>
+
+      <!-- Alert Card Jika Hasil Disembunyikan Admin -->
+      <div id="results-hidden-card" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
+        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+          <i class="fa-solid fa-eye-slash"></i>
+        </div>
+        <h3 class="text-xl font-bold text-amber-900">Hasil Suara Dirahasiakan</h3>
+        <p class="text-sm text-amber-700 max-w-md mx-auto">Panitia pemilihan sedang mengaktifkan mode privasi. Hasil perolehan suara akan ditampilkan secara otomatis setelah masa pemilihan berakhir.</p>
+      </div>
+
+      <!-- Container Chart Hasil Suara -->
+      <div id="results-content-area" class="space-y-8"></div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal Konfirmasi Kirim Suara Custom -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-sm w-full rounded-2xl shadow-xl p-6 text-center space-y-4">
+      <div id="modal-confirm-icon" class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="modal-confirm-title" class="text-lg font-bold text-slate-900">Konfirmasi</h3>
+      <p id="modal-confirm-msg" class="text-xs text-slate-600"></p>
+      <div class="flex justify-center gap-2 pt-2">
+        <button id="modal-cancel-btn" onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-xs">
+          Batal
+        </button>
+        <button id="modal-confirm-btn" onclick="executePendingAction()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs shadow">
+          Ya, Kirim Suara
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Logo Organisasi -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto space-y-4">
+    <div class="flex flex-wrap justify-center items-center gap-4 sm:gap-6 px-4">
+      <img id="logo-osis-footer" src="" alt="OSIS" class="h-10 w-auto object-contain">
+      <img id="logo-pradana-footer" src="" alt="Pradana Putra" class="h-10 w-auto object-contain">
+      <img id="logo-pradani-footer" src="" alt="Pradani Putri" class="h-10 w-auto object-contain">
+      <img id="logo-paskibra-footer" src="" alt="Paskibra" class="h-10 w-auto object-contain">
+      <img id="logo-pmr-footer" src="" alt="PMR" class="h-10 w-auto object-contain">
+    </div>
+    <div class="text-slate-400">
+      Pemilu Raya MTs Al Ishlah Panambangan &copy; 2026 - Portal E-Voting Digital
+    </div>
+  </footer>
+
+  <!-- Firebase SDK v10 (Realtime Database Singapore) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWjIOIXCtsMxuWq50vl1P6qLQUTextljI",
+      authDomain: "evoting-mts-alishlah.firebaseapp.com",
+      databaseURL: "https://evoting-mts-alishlah-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "evoting-mts-alishlah",
+      storageBucket: "evoting-mts-alishlah.firebasestorage.app",
+      messagingSenderId: "498918096822",
+      appId: "1:498918096822:web:c4f245a30d945b85ed0b17",
+      measurementId: "G-RE1QC8B3FH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'evoting_db');
+
+    window.cloudData = null;
+    window.saveCloudData = function(data) { set(dbRef, data); };
+
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      const loadingBar = document.getElementById('cloud-loading-bar');
+      if (loadingBar) {
+        loadingBar.classList.add('bg-emerald-600');
+        loadingBar.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Terhubung ke Cloud Firebase!`;
+        setTimeout(() => { loadingBar.style.display = 'none'; }, 2000);
+      }
+
+      if (data) {
+        window.cloudData = data;
+        window.updateHeaderTitle();
+        window.renderResults();
+      }
+    });
+  </script>
+
+  <!-- Logika Aplikasi Voters -->
+  <script>
+    const LOGOS = {
+      mts: "https://lh3.googleusercontent.com/d/192V6gHuWqegn_QwL4XzalRrjuIh-V6Eo",
+      osis: "https://lh3.googleusercontent.com/d/12eNgFGFpcGIfzSYJUEu4hTPa7vdH5bbu",
+      pradana: "https://lh3.googleusercontent.com/d/1UjzbXa4YwkLk9B_wDmdFuUBzc2CBKNMx",
+      pradani: "https://lh3.googleusercontent.com/d/1d-OJG2MYrHvvoGZfbcVlMqgvSbXeaWj2",
+      paskibra: "https://lh3.googleusercontent.com/d/1oftmfE1uwyXTEBl70yRq3adwYkegD9ZY",
+      pmr: "https://lh3.googleusercontent.com/d/10X2mfCp4RjUcrZW0DGdQ0Sa4hWqb2jCN",
+      kpr: "https://lh3.googleusercontent.com/d/1X7KA1gmL0mES9JgGvxvePKhPGwtKDeQv"
+    };
+
+    let activeVoterToken = null;
+    let pendingAction = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('logo-mts-header').src = LOGOS.mts;
+      document.getElementById('logo-kpr-header').src = LOGOS.kpr;
+      document.getElementById('logo-osis-footer').src = LOGOS.osis;
+      document.getElementById('logo-pradana-footer').src = LOGOS.pradana;
+      document.getElementById('logo-pradani-footer').src = LOGOS.pradani;
+      document.getElementById('logo-paskibra-footer').src = LOGOS.paskibra;
+      document.getElementById('logo-pmr-footer').src = LOGOS.pmr;
+    });
+
+    function getData() { return window.cloudData || {}; }
+
+    function updateHeaderTitle() {
+      const db = getData();
+      if (db.settings && db.settings.title) {
+        document.getElementById('header-app-title').innerText = db.settings.title;
+      }
+    }
+
+    function switchVoterTab(tab) {
+      document.getElementById('view-voter-ballot').classList.add('hidden');
+      document.getElementById('view-voter-results').classList.add('hidden');
+
+      document.getElementById('tab-btn-ballot').className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold hover:bg-white/20 transition flex items-center gap-1.5";
+      document.getElementById('tab-btn-results').className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold hover:bg-white/20 transition flex items-center gap-1.5";
+
+      if (tab === 'ballot') {
+        document.getElementById('view-voter-ballot').classList.remove('hidden');
+        document.getElementById('tab-btn-ballot').className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-white/20 text-white transition flex items-center gap-1.5";
+      } else if (tab === 'results') {
+        document.getElementById('view-voter-results').classList.remove('hidden');
+        document.getElementById('tab-btn-results').className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-white/20 text-white transition flex items-center gap-1.5";
+        renderResults();
+      }
+    }
+
+    function handleTokenSubmit(e) {
+      e.preventDefault();
+      const tokenInput = document.getElementById('input-voter-token').value.trim().toUpperCase();
+      const msgEl = document.getElementById('voter-token-msg');
+      const db = getData();
+
+      const now = new Date();
+      if (db.settings?.startTime && new Date(db.settings.startTime) > now) {
+        showMsg(msgEl, "Pemilihan belum dibuka. Silakan cek kembali sesuai jadwal.", "text-amber-600");
+        return;
+      }
+      if (db.settings?.endTime && new Date(db.settings.endTime) < now) {
+        showMsg(msgEl, "Pemilihan telah ditutup secara resmi.", "text-red-600");
+        return;
+      }
+
+      const voter = (db.voters || []).find(v => v.token?.toUpperCase() === tokenInput);
+
+      if (!voter) {
+        showMsg(msgEl, "Token tidak valid. Silakan periksa kembali token Anda.", "text-red-600");
+        return;
+      }
+
+      if (voter.hasVoted) {
+        showMsg(msgEl, "Token ini telah digunakan untuk memilih.", "text-red-600");
+        return;
+      }
+
+      activeVoterToken = voter.token;
+      document.getElementById('voter-token-card').classList.add('hidden');
+      document.getElementById('voter-welcome-name').innerText = voter.name;
+      document.getElementById('voter-ballot-area').classList.remove('hidden');
+
+      renderBallot(voter);
+    }
+
+    function renderBallot(voter) {
+      const db = getData();
+      const container = document.getElementById('ballot-categories-list');
+      container.innerHTML = '';
+
+      const voterCategories = (db.categories || []).filter(c => (voter.assignedCategories || []).includes(c.id));
+
+      if (voterCategories.length === 0) {
+        container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Anda tidak memiliki alokasi surat suara. Silakan hubungi panitia.</div>`;
+        return;
+      }
+
+      voterCategories.forEach((cat, idx) => {
+        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+
+        let candHtml = '';
+        if (candidates.length === 0) {
+          candHtml = `<div class="p-4 bg-slate-50 text-slate-400 text-sm text-center rounded-xl">Belum ada kandidat pada kategori ini.</div>`;
+        } else {
+          candHtml = `
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${candidates.map(c => `
+                <label class="relative bg-slate-50 hover:bg-slate-100 p-4 rounded-xl border-2 border-slate-200 cursor-pointer transition flex flex-col justify-between space-y-3 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/50">
+                  <input type="radio" name="ballot-cat-${cat.id}" value="${c.id}" class="absolute top-4 right-4 w-5 h-5 text-teal-600 focus:ring-teal-500">
+                  <div class="space-y-3">
+                    <img src="${c.photo}" alt="${c.name}" class="w-full h-40 object-cover rounded-lg border border-slate-200">
+                    <div>
+                      <h4 class="font-bold text-slate-900 text-lg">${c.name}</h4>
+                      <p class="text-xs text-slate-500 mt-1"><strong>Visi & Misi:</strong> ${c.vision}</p>
+                    </div>
+                  </div>
+                  <div class="text-xs font-bold text-center text-custom-teal pt-2 border-t border-slate-200">
+                    Pilih Kandidat
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        container.innerHTML += `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b pb-4">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 bg-custom-gradient text-white rounded-full flex items-center justify-center text-sm font-bold shadow">${idx + 1}</span>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900">${cat.name}</h3>
+              </div>
+            </div>
+            ${candHtml}
+          </div>
+        `;
+      });
+    }
+
+    function triggerBallotSubmit() {
+      const db = getData();
+      const voter = (db.voters || []).find(v => v.token === activeVoterToken);
+      const voterCategories = (db.categories || []).filter(c => (voter.assignedCategories || []).includes(c.id));
+
+      let selectedVotes = [];
+      let missingCategory = false;
+
+      voterCategories.forEach(cat => {
+        const selected = document.querySelector(`input[name="ballot-cat-${cat.id}"]:checked`);
+        if (!selected) {
+          missingCategory = true;
+        } else {
+          selectedVotes.push(selected.value);
+        }
+      });
+
+      if (missingCategory) {
+        openConfirmModal("Kategori Belum Lengkap", "Harap pilih salah satu kandidat pada setiap kategori surat suara yang diberikan!", null, false);
+        return;
+      }
+
+      if (db.settings?.confirmVote) {
+        openConfirmModal("Kirim Suara", "Apakah Anda yakin dengan seluruh pilihan Anda? Suara yang telah dikirim tidak dapat diubah kembali.", () => {
+          executeBallotSubmission(selectedVotes, voter, db);
+        });
+      } else {
+        executeBallotSubmission(selectedVotes, voter, db);
+      }
+    }
+
+    function executeBallotSubmission(selectedVotes, voter, db) {
+      selectedVotes.forEach(candId => {
+        const candidate = (db.candidates || []).find(c => c.id === candId);
+        if (candidate) {
+          candidate.votes = (candidate.votes || 0) + 1;
+        }
+      });
+
+      voter.hasVoted = true;
+      window.saveCloudData(db);
+
+      openConfirmModal("Suara Terkirim!", "Terima kasih! Suara Anda telah berhasil dikirim secara sah.", () => {
+        location.reload();
+      }, false);
+    }
+
+    function renderResults() {
+      const db = getData();
+      const container = document.getElementById('results-content-area');
+      const hiddenCard = document.getElementById('results-hidden-card');
+
+      if (!container || !hiddenCard) return;
+
+      if (db.settings?.hideResults) {
+        container.innerHTML = '';
+        hiddenCard.classList.remove('hidden');
+      } else {
+        hiddenCard.classList.add('hidden');
+        container.innerHTML = (db.categories || []).map(cat => {
+          const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+          const eligibleVoters = (db.voters || []).filter(v => (v.assignedCategories || []).includes(cat.id));
+          const totalEligible = eligibleVoters.length;
+          const votedCount = eligibleVoters.filter(v => v.hasVoted).length;
+          const unvotedCount = totalEligible - votedCount;
+          const votedPct = totalEligible > 0 ? ((votedCount / totalEligible) * 100).toFixed(1) : 0;
+          const unvotedPct = totalEligible > 0 ? ((unvotedCount / totalEligible) * 100).toFixed(1) : 0;
+
+          const candidatesHtml = candidates.map(c => {
+            const percentage = votedCount > 0 ? ((c.votes || 0) / votedCount * 100).toFixed(1) : 0;
+            return `
+              <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-sm font-semibold">
+                  <span class="text-slate-800">${c.name}</span>
+                  <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
+                  <div class="bg-custom-gradient h-3.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          return `
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+              <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-900">${cat.name}</h3>
+                <div class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg w-fit">
+                  Pemilih Berhak: <span class="font-mono text-slate-900 font-bold">${totalEligible}</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg flex items-center justify-between">
+                  <div>
+                    <div class="text-emerald-700 font-semibold">Suara Masuk</div>
+                    <div class="text-base font-bold text-emerald-900 font-mono">${votedCount}</div>
+                  </div>
+                  <span class="text-emerald-700 font-bold font-mono text-xs bg-emerald-200/60 px-2 py-0.5 rounded">${votedPct}%</span>
+                </div>
+                <div class="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
+                  <div>
+                    <div class="text-rose-700 font-semibold">Suara Belum Masuk</div>
+                    <div class="text-base font-bold text-rose-900 font-mono">${unvotedCount}</div>
+                  </div>
+                  <span class="text-rose-700 font-bold font-mono text-xs bg-rose-200/60 px-2 py-0.5 rounded">${unvotedPct}%</span>
+                </div>
+              </div>
+              <div class="space-y-4 pt-1">${candidatesHtml}</div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function openConfirmModal(title, msg, onConfirmAction, showCancel = true) {
+      document.getElementById('modal-confirm-title').innerText = title;
+      document.getElementById('modal-confirm-msg').innerText = msg;
+      pendingAction = onConfirmAction;
+      const cancelBtn = document.getElementById('modal-cancel-btn');
+      if (showCancel) cancelBtn.classList.remove('hidden'); else cancelBtn.classList.add('hidden');
+      document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('modal-confirm').classList.add('hidden');
+      pendingAction = null;
+    }
+
+    function executePendingAction() {
+      const action = pendingAction;
+      closeConfirmModal();
+      if (action) action();
+    }
+
+    function showMsg(el, text, colorClass) {
+      el.className = `mt-4 text-center text-sm font-medium ${colorClass}`;
+      el.innerText = text;
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
