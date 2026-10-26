@@ -1,1 +1,856 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin Pemilu Raya MTs Al Ishlah Panambangan 2026</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    
+    .bg-custom-gradient {
+      background: linear-gradient(135deg, #012c2e 0%, #014a48 50%, #078f87 100%);
+    }
+    .text-custom-teal { color: #078f87; }
+    .bg-custom-teal-light { background-color: #e6f4f3; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
+  <!-- Header Admin -->
+  <header class="bg-custom-gradient text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 bg-white/10 p-1.5 rounded-xl backdrop-blur-sm border border-white/10">
+          <img id="logo-mts-header" src="" alt="Logo MTs Al Ishlah" class="h-10 w-auto object-contain">
+          <img id="logo-kpr-header" src="" alt="Logo KPR" class="h-10 w-auto object-contain">
+        </div>
+        <div>
+          <h1 id="header-app-title" class="text-base sm:text-lg font-bold leading-tight">Pemilu Raya MTs Al Ishlah Panambangan 2026</h1>
+          <p class="text-xs text-teal-200">Panel Kontrol Pengelola Pemilu (Multi-Admin Cloud)</p>
+        </div>
+      </div>
+
+      <nav class="flex items-center space-x-2">
+        <button id="logout-btn" onclick="adminLogout()" class="hidden px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-red-600 hover:bg-red-700 transition text-white items-center gap-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i> Keluar
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- Loading Bar Realtime Firebase -->
+    <div id="cloud-loading-bar" class="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white text-[11px] font-bold text-center py-1 transition-all">
+      <i class="fa-solid fa-sync fa-spin mr-1"></i> Menghubungkan ke Server Cloud Firebase...
+    </div>
+
+    <!-- ==================== LOGIN ADMIN ==================== -->
+    <div id="admin-login-card" class="max-w-md mx-auto mt-10 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+      <div class="bg-custom-gradient text-white p-6 text-center">
+        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-2 text-xl shadow-lg backdrop-blur-sm">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h2 class="text-xl font-bold">Autentikasi Admin</h2>
+        <p class="text-xs text-teal-100 mt-1">Masukkan akun pengelola e-voting</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username</label>
+          <input type="text" id="admin-user" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Password</label>
+          <input type="password" id="admin-pass" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+        </div>
+        <button type="submit" class="w-full bg-custom-gradient hover:opacity-95 text-white font-semibold py-3 rounded-lg transition text-sm flex items-center justify-center gap-2">
+          <span>Masuk Dashboard</span> <i class="fa-solid fa-right-to-bracket"></i>
+        </button>
+      </form>
+      <div id="admin-login-msg" class="pb-4 px-6 text-center text-xs font-medium text-red-600 hidden"></div>
+    </div>
+
+    <!-- ==================== DASHBOARD ADMIN (PROTECTED) ==================== -->
+    <div id="admin-dashboard" class="hidden space-y-6">
+      
+      <!-- Top Dashboard Info -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="text-xs font-bold text-custom-teal uppercase tracking-wider">Panel Pengelola Pemilu</span>
+          <h2 class="text-2xl font-bold text-slate-900">Dashboard Admin</h2>
+        </div>
+        <button onclick="requestResetAllData()" class="px-3.5 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+          <i class="fa-solid fa-trash-arrow-up"></i> Reset System Data
+        </button>
+      </div>
+
+      <!-- Admin Sub-Menu (5 Navigasi) -->
+      <div class="flex border-b border-slate-200 overflow-x-auto bg-white rounded-xl shadow-sm p-1.5 gap-1">
+        <button onclick="switchAdminMenu('setting')" id="admin-menu-btn-setting" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2">
+          <i class="fa-solid fa-sliders"></i> 1. Setting & Admin
+        </button>
+        <button onclick="switchAdminMenu('datetime')" id="admin-menu-btn-datetime" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+          <i class="fa-solid fa-clock"></i> 2. Waktu Pemilu
+        </button>
+        <button onclick="switchAdminMenu('ballot')" id="admin-menu-btn-ballot" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+          <i class="fa-solid fa-boxes-packing"></i> 3. Kotak Suara
+        </button>
+        <button onclick="switchAdminMenu('voters')" id="admin-menu-btn-voters" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+          <i class="fa-solid fa-users"></i> 4. Voters & Import
+        </button>
+        <button onclick="switchAdminMenu('live')" id="admin-menu-btn-live" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+          <i class="fa-solid fa-chart-line"></i> 5. Hasil Sementara
+        </button>
+      </div>
+
+      <!-- SUB-MENU 1: SETTING & KELOLA MULTI-ADMIN -->
+      <div id="admin-sub-setting" class="admin-sub-page bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Pengaturan Umum Pemilihan</h3>
+        
+        <form onsubmit="saveSettings(event)" class="space-y-4 max-w-xl">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Judul Voting / Nama Instansi</label>
+            <input type="text" id="setting-title" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+          </div>
+
+          <div class="space-y-3 pt-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="setting-hide-results" class="w-4 h-4 text-teal-600 rounded">
+              <span class="text-sm font-medium text-slate-700">Sembunyikan hasil perolehan suara untuk publik selama pemilu berlangsung</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="setting-confirm-vote" class="w-4 h-4 text-teal-600 rounded">
+              <span class="text-sm font-medium text-slate-700">Tampilkan konfirmasi ulang sebelum pemilih mengirimkan surat suara</span>
+            </label>
+          </div>
+
+          <button type="submit" class="px-5 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm shadow transition">
+            <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pengaturan
+          </button>
+        </form>
+
+        <!-- KELOLA DAFTAR MULTI-ADMIN -->
+        <div class="border-t pt-6 space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800">Manajemen Akun Admin (Multi-Admin)</h3>
+              <p class="text-xs text-slate-500">Tambah atau ubah username & password panitia pengelola pemilu.</p>
+            </div>
+          </div>
+
+          <!-- Form Tambah Admin -->
+          <form onsubmit="addAdminUser(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input type="text" id="input-new-admin-user" placeholder="Username Baru" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+            <input type="password" id="input-new-admin-pass" placeholder="Password (Min 6 Karakter)" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs">
+              + Tambah Akun Admin
+            </button>
+          </form>
+
+          <!-- Tabel Daftar Admin -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
+                <tr>
+                  <th class="p-3">Username</th>
+                  <th class="p-3">Password</th>
+                  <th class="p-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-MENU 2: WAKTU PEMILU -->
+      <div id="admin-sub-datetime" class="admin-sub-page hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+        <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Jadwal Operasional Pemilihan</h3>
+        <p class="text-xs text-slate-500">Sistem akan mengunci bilik suara secara otomatis jika pemilih memasukkan token di luar waktu ini.</p>
+
+        <form onsubmit="saveDateTime(event)" class="space-y-4 max-w-xl">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Waktu Mulai</label>
+              <input type="datetime-local" id="datetime-start" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Waktu Akhir</label>
+              <input type="datetime-local" id="datetime-end" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+            </div>
+          </div>
+
+          <button type="submit" class="px-5 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm shadow transition">
+            <i class="fa-solid fa-clock-rotate-left mr-1"></i> Simpan Waktu Pemilu
+          </button>
+        </form>
+      </div>
+
+      <!-- SUB-MENU 3: KOTAK SUARA -->
+      <div id="admin-sub-ballot" class="admin-sub-page hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Tambah Kategori Pemilihan</h3>
+          <form onsubmit="addCategory(event)" class="flex gap-2 max-w-xl">
+            <input type="text" id="input-cat-name" placeholder="Contoh: Pemilihan Ketua PMR" required class="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
+            <button type="submit" class="px-4 py-2.5 bg-custom-gradient hover:opacity-95 text-white font-semibold rounded-lg text-sm transition">
+              <i class="fa-solid fa-plus"></i> Kategori
+            </button>
+          </form>
+        </div>
+
+        <div id="admin-categories-container" class="space-y-6"></div>
+      </div>
+
+      <!-- SUB-MENU 4: VOTERS & IMPORT EXCEL/CSV -->
+      <div id="admin-sub-voters" class="admin-sub-page hidden space-y-6">
+        
+        <!-- Form Tambah Voter Manual & Fitur Import CSV/Excel -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Tambah Manual -->
+          <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Registrasi Pemilih Manual</h3>
+            <form onsubmit="addVoter(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Pemilih</label>
+                  <input type="text" id="input-voter-name" placeholder="Nama Lengkap" required class="w-full px-4 py-2.5 rounded-lg border outline-none text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Token Pemilih</label>
+                  <div class="flex gap-2">
+                    <input type="text" id="input-voter-token-reg" placeholder="EV-XXXX" required class="w-full px-4 py-2.5 rounded-lg border outline-none text-sm font-mono uppercase">
+                    <button type="button" onclick="generateRandomToken()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold">
+                      Acak
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Alokasi Hak Surat Suara</label>
+                <div id="voter-category-checkboxes" class="flex flex-wrap gap-4 bg-slate-50 p-3 rounded-lg border"></div>
+              </div>
+
+              <button type="submit" class="px-5 py-2.5 bg-custom-gradient text-white font-semibold rounded-lg text-sm">
+                <i class="fa-solid fa-user-plus mr-1"></i> Tambahkan Pemilih
+              </button>
+            </form>
+          </div>
+
+          <!-- Fitur Import Excel/CSV -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Impor via Excel / CSV</h3>
+              <p class="text-xs text-slate-500 mt-2">Unggah data pemilih masal dengan format kolom: <strong>Nama, Alokasi Hak Suara, Token</strong>.</p>
+              
+              <div class="mt-4 space-y-2">
+                <button onclick="downloadCSVTemplate()" class="w-full px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-300">
+                  <i class="fa-solid fa-file-csv"></i> Unduh Template CSV
+                </button>
+              </div>
+            </div>
+
+            <div class="border-t pt-4">
+              <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Pilih File CSV/Excel</label>
+              <input type="file" id="input-file-csv" accept=".csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal hover:file:bg-teal-100">
+              <button onclick="processCSVImport()" class="w-full mt-3 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs transition">
+                <i class="fa-solid fa-file-import mr-1"></i> Impor Seluruh Data Pemilih
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tabel Voters -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800">Daftar Token Pemilih</h3>
+            <span id="voter-count-badge" class="px-3 py-1 bg-custom-teal-light text-custom-teal text-xs font-bold rounded-full">Total: 0</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
+                <tr>
+                  <th class="p-3">Nama Pemilih</th>
+                  <th class="p-3">Token</th>
+                  <th class="p-3">Hak Surat Suara</th>
+                  <th class="p-3">Status Voting</th>
+                  <th class="p-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="voters-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUB-MENU 5: HASIL SEMENTARA ADMIN -->
+      <div id="admin-sub-live" class="admin-sub-page hidden space-y-6">
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-amber-900">Pemantauan Progres Hasil Sementara (Internal Admin)</h3>
+            <p class="text-xs text-amber-700">Tetap menampilkan perolehan suara real-time & statistik DPT panitia meskipun di halaman publik disembunyikan.</p>
+          </div>
+        </div>
+        <div id="admin-live-results-container" class="space-y-8"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL EDIT HAK AKSES VOTER -->
+  <div id="modal-edit-voter" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 class="text-lg font-bold text-slate-900 border-b pb-2">Edit Hak Surat Suara Pemilih</h3>
+      <p id="modal-edit-voter-name" class="text-sm font-semibold text-custom-teal"></p>
+      
+      <div id="modal-edit-category-checkboxes" class="space-y-2 bg-slate-50 p-3 rounded-lg border max-h-60 overflow-y-auto"></div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeEditVoterModal()" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs">Batal</button>
+        <button onclick="saveVoterScopeEdit()" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KONFIRMASI -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-sm w-full rounded-2xl shadow-xl p-6 text-center space-y-4">
+      <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="modal-confirm-title" class="text-lg font-bold text-slate-900">Konfirmasi Tindakan</h3>
+      <p id="modal-confirm-msg" class="text-xs text-slate-600"></p>
+      <div class="flex justify-center gap-2 pt-2">
+        <button id="modal-cancel-btn" onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs">Batal</button>
+        <button id="modal-confirm-btn" onclick="executePendingAction()" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg text-xs">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK v10 (Realtime Database Singapore) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWjIOIXCtsMxuWq50vl1P6qLQUTextljI",
+      authDomain: "evoting-mts-alishlah.firebaseapp.com",
+      databaseURL: "https://evoting-mts-alishlah-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "evoting-mts-alishlah",
+      storageBucket: "evoting-mts-alishlah.firebasestorage.app",
+      messagingSenderId: "498918096822",
+      appId: "1:498918096822:web:c4f245a30d945b85ed0b17",
+      measurementId: "G-RE1QC8B3FH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'evoting_db');
+
+    window.cloudData = null;
+    window.saveCloudData = function(data) { set(dbRef, data); };
+
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      const loadingBar = document.getElementById('cloud-loading-bar');
+      if (loadingBar) {
+        loadingBar.classList.add('bg-emerald-600');
+        loadingBar.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> Terhubung ke Cloud Firebase!`;
+        setTimeout(() => { loadingBar.style.display = 'none'; }, 2000);
+      }
+
+      if (!data) {
+        set(dbRef, window.DEFAULT_DATA);
+      } else {
+        window.cloudData = data;
+        const adminDashboard = document.getElementById('admin-dashboard');
+        if (adminDashboard && !adminDashboard.classList.contains('hidden')) {
+          window.loadAdminData();
+        }
+      }
+    });
+  </script>
+
+  <!-- Logika Aplikasi Admin -->
+  <script>
+    const LOGOS = {
+      mts: "https://lh3.googleusercontent.com/d/192V6gHuWqegn_QwL4XzalRrjuIh-V6Eo",
+      kpr: "https://lh3.googleusercontent.com/d/1X7KA1gmL0mES9JgGvxvePKhPGwtKDeQv"
+    };
+
+    window.DEFAULT_DATA = {
+      adminUsers: [
+        { id: "adm-1", username: "admin", password: "password123" }
+      ],
+      settings: {
+        title: "Pemilu Raya MTs Al Ishlah Panambangan 2026",
+        hideResults: false,
+        confirmVote: true,
+        startTime: "",
+        endTime: ""
+      },
+      categories: [
+        { id: "cat-1", name: "Pemilihan Ketua OSIS" },
+        { id: "cat-2", name: "Pemilihan Pradana (Pramuka Putra)" },
+        { id: "cat-3", name: "Pemilihan Pradani (Pramuka Putri)" },
+        { id: "cat-4", name: "Pemilihan Ketua Paskibra" },
+        { id: "cat-5", name: "Pemilihan Ketua PMR" }
+      ],
+      candidates: [
+        { id: "cand-1", categoryId: "cat-1", name: "Andi Pratama", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300", vision: "Mewujudkan sekolah digital & inklusif.", votes: 0 },
+        { id: "cand-2", categoryId: "cat-1", name: "Budi Santoso", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300", vision: "Mengembangkan potensi kepemimpinan.", votes: 0 }
+      ],
+      voters: [
+        { name: "Ahmad Siswa", token: "EV-1001", hasVoted: false, assignedCategories: ["cat-1", "cat-2", "cat-4"] },
+        { name: "Anisa Siswi", token: "EV-1002", hasVoted: false, assignedCategories: ["cat-1", "cat-3", "cat-5"] }
+      ]
+    };
+
+    let selectedVoterForEdit = null;
+    let pendingAction = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('logo-mts-header').src = LOGOS.mts;
+      document.getElementById('logo-kpr-header').src = LOGOS.kpr;
+      checkAdminSession();
+    });
+
+    function getData() { return window.cloudData || window.DEFAULT_DATA; }
+
+    function checkAdminSession() {
+      const isAdmin = sessionStorage.getItem('isAdminLoggedIn') || localStorage.getItem('isAdminLoggedIn');
+      if (isAdmin === 'true') {
+        document.getElementById('admin-login-card').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.add('flex');
+        loadAdminData();
+      } else {
+        document.getElementById('admin-login-card').classList.remove('hidden');
+        document.getElementById('admin-dashboard').classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden');
+      }
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('admin-user').value.trim().toLowerCase();
+      const p = document.getElementById('admin-pass').value.trim();
+      const msg = document.getElementById('admin-login-msg');
+      const db = getData();
+
+      const adminUsers = db.adminUsers || [{ username: "admin", password: "password123" }];
+      const valid = adminUsers.some(a => a.username.toLowerCase() === u && a.password === p);
+
+      if (valid) {
+        sessionStorage.setItem('isAdminLoggedIn', 'true');
+        localStorage.setItem('isAdminLoggedIn', 'true');
+        checkAdminSession();
+      } else {
+        showMsg(msg, "Username atau password salah!", "text-red-600");
+      }
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem('isAdminLoggedIn');
+      localStorage.removeItem('isAdminLoggedIn');
+      checkAdminSession();
+    }
+
+    function switchAdminMenu(menu) {
+      document.querySelectorAll('.admin-sub-page').forEach(p => p.classList.add('hidden'));
+      ['setting', 'datetime', 'ballot', 'voters', 'live'].forEach(b => {
+        document.getElementById(`admin-menu-btn-${b}`).className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2";
+      });
+      document.getElementById(`admin-sub-${menu}`).classList.remove('hidden');
+      document.getElementById(`admin-menu-btn-${menu}`).className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2";
+
+      if (menu === 'voters') renderVoterCategoryCheckboxes();
+      if (menu === 'live') renderAdminLiveResults();
+    }
+
+    function loadAdminData() {
+      const db = getData();
+      if (db.settings) {
+        document.getElementById('setting-title').value = db.settings.title || '';
+        document.getElementById('setting-hide-results').checked = db.settings.hideResults || false;
+        document.getElementById('setting-confirm-vote').checked = db.settings.confirmVote || false;
+        document.getElementById('datetime-start').value = db.settings.startTime || '';
+        document.getElementById('datetime-end').value = db.settings.endTime || '';
+      }
+      renderAdminUsersTable();
+      renderAdminCategoriesAndCandidates();
+      renderVotersTable();
+      renderVoterCategoryCheckboxes();
+      renderAdminLiveResults();
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      const db = getData();
+      if (!db.settings) db.settings = {};
+      db.settings.title = document.getElementById('setting-title').value;
+      db.settings.hideResults = document.getElementById('setting-hide-results').checked;
+      db.settings.confirmVote = document.getElementById('setting-confirm-vote').checked;
+      window.saveCloudData(db);
+      openConfirmModal("Tersimpan!", "Pengaturan umum disimpan.", null, false);
+    }
+
+    function addAdminUser(e) {
+      e.preventDefault();
+      const u = document.getElementById('input-new-admin-user').value.trim();
+      const p = document.getElementById('input-new-admin-pass').value.trim();
+      const db = getData();
+
+      if (!db.adminUsers) db.adminUsers = [];
+      db.adminUsers.push({ id: 'adm-' + Date.now(), username: u, password: p });
+      window.saveCloudData(db);
+
+      document.getElementById('input-new-admin-user').value = '';
+      document.getElementById('input-new-admin-pass').value = '';
+      renderAdminUsersTable();
+    }
+
+    function deleteAdminUser(id) {
+      const db = getData();
+      if ((db.adminUsers || []).length <= 1) {
+        openConfirmModal("Gagal", "Minimal harus ada 1 akun admin aktif!", null, false);
+        return;
+      }
+      openConfirmModal("Hapus Admin", "Yakin ingin menghapus akun admin ini?", () => {
+        db.adminUsers = (db.adminUsers || []).filter(a => a.id !== id);
+        window.saveCloudData(db);
+        renderAdminUsersTable();
+      });
+    }
+
+    function renderAdminUsersTable() {
+      const db = getData();
+      const tbody = document.getElementById('admin-users-table-body');
+      tbody.innerHTML = '';
+      (db.adminUsers || []).forEach(a => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">${a.username}</td>
+            <td class="p-3 font-mono text-slate-500">${a.password}</td>
+            <td class="p-3 text-right">
+              <button onclick="deleteAdminUser('${a.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">
+                <i class="fa-solid fa-trash-can"></i> Hapus
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function saveDateTime(e) {
+      e.preventDefault();
+      const db = getData();
+      if (!db.settings) db.settings = {};
+      db.settings.startTime = document.getElementById('datetime-start').value;
+      db.settings.endTime = document.getElementById('datetime-end').value;
+      window.saveCloudData(db);
+      openConfirmModal("Tersimpan!", "Jadwal operasional berhasil diperbarui.", null, false);
+    }
+
+    function addCategory(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('input-cat-name');
+      const db = getData();
+      if (!db.categories) db.categories = [];
+      db.categories.push({ id: 'cat-' + Date.now(), name: nameInput.value.trim() });
+      window.saveCloudData(db);
+      nameInput.value = '';
+      renderAdminCategoriesAndCandidates();
+      renderVoterCategoryCheckboxes();
+    }
+
+    function renderAdminCategoriesAndCandidates() {
+      const db = getData();
+      const container = document.getElementById('admin-categories-container');
+      container.innerHTML = '';
+
+      (db.categories || []).forEach(cat => {
+        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+        container.innerHTML += `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+              <h4 class="text-lg font-bold text-slate-900">${cat.name}</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${candidates.map(c => `
+                <div class="bg-slate-50 p-3 rounded-xl border flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <img src="${c.photo}" class="w-12 h-12 object-cover rounded-lg">
+                    <div>
+                      <div class="font-bold text-sm text-slate-800">${c.name}</div>
+                      <div class="text-xs text-slate-500 truncate max-w-[150px]">${c.vision}</div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderVoterCategoryCheckboxes() {
+      const db = getData();
+      const container = document.getElementById('voter-category-checkboxes');
+      container.innerHTML = '';
+      (db.categories || []).forEach(cat => {
+        container.innerHTML += `
+          <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded border text-xs font-medium">
+            <input type="checkbox" name="voter-cat-scope" value="${cat.id}" checked class="w-4 h-4 text-teal-600">
+            <span>${cat.name}</span>
+          </label>
+        `;
+      });
+    }
+
+    function addVoter(e) {
+      e.preventDefault();
+      const name = document.getElementById('input-voter-name').value.trim();
+      const token = document.getElementById('input-voter-token-reg').value.trim().toUpperCase();
+      const db = getData();
+
+      if (!db.voters) db.voters = [];
+      const selectedScope = Array.from(document.querySelectorAll('input[name="voter-cat-scope"]:checked')).map(cb => cb.value);
+
+      db.voters.push({ name: name, token: token, hasVoted: false, assignedCategories: selectedScope });
+      window.saveCloudData(db);
+
+      document.getElementById('input-voter-name').value = '';
+      document.getElementById('input-voter-token-reg').value = '';
+      renderVotersTable();
+    }
+
+    function generateRandomToken() {
+      document.getElementById('input-voter-token-reg').value = `EV-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    function downloadCSVTemplate() {
+      const csvContent = "data:text/csv;charset=utf-8,Nama,Alokasi Hak Suara,Token\nAhmad Siswa,\"OSIS, Pramuka Putra, Paskibra\",EV-1001\nAnisa Siswi,\"OSIS, PMR\",EV-1002";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "template_pemilih_evoting.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function processCSVImport() {
+      const fileInput = document.getElementById('input-file-csv');
+      const file = fileInput.files[0];
+      if (!file) {
+        openConfirmModal("Pilih File", "Silakan pilih file CSV terlebih dahulu!", null, false);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        const db = getData();
+        if (!db.voters) db.voters = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const cols = lines[i].split(',');
+          if (cols.length >= 3) {
+            const name = cols[0].replace(/"/g, '').trim();
+            const scopeStr = cols[1].replace(/"/g, '').trim();
+            const token = cols[2].replace(/"/g, '').trim().toUpperCase();
+
+            const assignedCats = (db.categories || []).filter(c => scopeStr.toLowerCase().includes(c.name.toLowerCase())).map(c => c.id);
+
+            if (!db.voters.some(v => v.token === token)) {
+              db.voters.push({ name: name, token: token, hasVoted: false, assignedCategories: assignedCats });
+            }
+          }
+        }
+
+        window.saveCloudData(db);
+        renderVotersTable();
+        openConfirmModal("Berhasil Impor", "Seluruh data pemilih dari file CSV berhasil dimasukkan ke Cloud!", null, false);
+      };
+      reader.readAsText(file);
+    }
+
+    function renderVotersTable() {
+      const db = getData();
+      const tbody = document.getElementById('voters-table-body');
+      if (!tbody) return;
+
+      document.getElementById('voter-count-badge').innerText = `Total: ${(db.voters || []).length}`;
+      tbody.innerHTML = '';
+
+      (db.voters || []).forEach(v => {
+        const assignedCats = (db.categories || []).filter(c => (v.assignedCategories || []).includes(c.id));
+        const catBadges = assignedCats.map(c => `<span class="inline-block bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded border mr-1 mb-1">${c.name}</span>`).join('');
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold text-slate-800">${v.name}</td>
+            <td class="p-3 font-mono font-bold text-custom-teal">${v.token}</td>
+            <td class="p-3 max-w-xs">${catBadges}</td>
+            <td class="p-3">
+              ${v.hasVoted 
+                ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">Sudah Memilih</span>'
+                : '<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">Belum</span>'}
+            </td>
+            <td class="p-3 text-right">
+              <button onclick="openEditVoterModal('${v.token}')" class="text-custom-teal hover:underline font-semibold text-xs">Edit Hak Suara</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function openEditVoterModal(token) {
+      const db = getData();
+      selectedVoterForEdit = (db.voters || []).find(v => v.token === token);
+      if (!selectedVoterForEdit) return;
+
+      document.getElementById('modal-edit-voter-name').innerText = `${selectedVoterForEdit.name} (${selectedVoterForEdit.token})`;
+      const container = document.getElementById('modal-edit-category-checkboxes');
+      container.innerHTML = '';
+
+      (db.categories || []).forEach(cat => {
+        const isChecked = (selectedVoterForEdit.assignedCategories || []).includes(cat.id);
+        container.innerHTML += `
+          <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded text-xs font-medium">
+            <input type="checkbox" name="edit-voter-cat-scope" value="${cat.id}" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-teal-600">
+            <span>${cat.name}</span>
+          </label>
+        `;
+      });
+
+      document.getElementById('modal-edit-voter').classList.remove('hidden');
+    }
+
+    function closeEditVoterModal() {
+      document.getElementById('modal-edit-voter').classList.add('hidden');
+      selectedVoterForEdit = null;
+    }
+
+    function saveVoterScopeEdit() {
+      if (!selectedVoterForEdit) return;
+      const db = getData();
+      const voter = (db.voters || []).find(v => v.token === selectedVoterForEdit.token);
+      if (voter) {
+        voter.assignedCategories = Array.from(document.querySelectorAll('input[name="edit-voter-cat-scope"]:checked')).map(cb => cb.value);
+        window.saveCloudData(db);
+        renderVotersTable();
+      }
+      closeEditVoterModal();
+    }
+
+    function renderAdminLiveResults() {
+      const db = getData();
+      const container = document.getElementById('admin-live-results-container');
+      if (!container) return;
+
+      container.innerHTML = (db.categories || []).map(cat => {
+        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+        const eligibleVoters = (db.voters || []).filter(v => (v.assignedCategories || []).includes(cat.id));
+        const totalEligible = eligibleVoters.length;
+        const votedCount = eligibleVoters.filter(v => v.hasVoted).length;
+        const unvotedCount = totalEligible - votedCount;
+        const votedPct = totalEligible > 0 ? ((votedCount / totalEligible) * 100).toFixed(1) : 0;
+        const unvotedPct = totalEligible > 0 ? ((unvotedCount / totalEligible) * 100).toFixed(1) : 0;
+
+        const candidatesHtml = candidates.map(c => {
+          const percentage = votedCount > 0 ? ((c.votes || 0) / votedCount * 100).toFixed(1) : 0;
+          return `
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-sm font-semibold">
+                <span class="text-slate-800">${c.name}</span>
+                <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
+                <div class="bg-custom-gradient h-3.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+            <div class="flex justify-between items-center border-b pb-3">
+              <h3 class="text-lg font-bold text-slate-900">${cat.name}</h3>
+              <div class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
+                Pemilih Berhak: <span class="font-mono text-slate-900 font-bold">${totalEligible}</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+              <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg flex items-center justify-between">
+                <div>
+                  <div class="text-emerald-700 font-semibold">Suara Masuk</div>
+                  <div class="text-base font-bold text-emerald-900 font-mono">${votedCount}</div>
+                </div>
+                <span class="text-emerald-700 font-bold font-mono text-xs bg-emerald-200/60 px-2 py-0.5 rounded">${votedPct}%</span>
+              </div>
+              <div class="bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
+                <div>
+                  <div class="text-rose-700 font-semibold">Suara Belum Masuk</div>
+                  <div class="text-base font-bold text-rose-900 font-mono">${unvotedCount}</div>
+                </div>
+                <span class="text-rose-700 font-bold font-mono text-xs bg-rose-200/60 px-2 py-0.5 rounded">${unvotedPct}%</span>
+              </div>
+            </div>
+            <div class="space-y-4 pt-1">${candidatesHtml}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function requestResetAllData() {
+      openConfirmModal("Reset Seluruh Data Cloud", "Kembalikan seluruh database e-voting ke data awal?", () => {
+        window.saveCloudData(window.DEFAULT_DATA);
+        location.reload();
+      });
+    }
+
+    function openConfirmModal(title, msg, onConfirmAction, showCancel = true) {
+      document.getElementById('modal-confirm-title').innerText = title;
+      document.getElementById('modal-confirm-msg').innerText = msg;
+      pendingAction = onConfirmAction;
+      const cancelBtn = document.getElementById('modal-cancel-btn');
+      if (showCancel) cancelBtn.classList.remove('hidden'); else cancelBtn.classList.add('hidden');
+      document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('modal-confirm').classList.add('hidden');
+      pendingAction = null;
+    }
+
+    function executePendingAction() {
+      const action = pendingAction;
+      closeConfirmModal();
+      if (action) action();
+    }
+
+    function showMsg(el, text, colorClass) {
+      el.className = `mt-4 text-center text-sm font-medium ${colorClass}`;
+      el.innerText = text;
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
