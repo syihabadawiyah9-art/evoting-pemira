@@ -145,7 +145,6 @@
             </div>
           </div>
 
-          <!-- Form Tambah Admin -->
           <form onsubmit="addAdminUser(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input type="text" id="input-new-admin-user" placeholder="Username Baru" required class="px-3 py-2 text-xs rounded-lg border outline-none">
             <input type="password" id="input-new-admin-pass" placeholder="Password (Min 6 Karakter)" required class="px-3 py-2 text-xs rounded-lg border outline-none">
@@ -154,7 +153,6 @@
             </button>
           </form>
 
-          <!-- Tabel Daftar Admin -->
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
@@ -193,7 +191,7 @@
         </form>
       </div>
 
-      <!-- SUB-MENU 3: KOTAK SUARA -->
+      <!-- SUB-MENU 3: KOTAK SUARA & KELOLA PASLON -->
       <div id="admin-sub-ballot" class="admin-sub-page hidden space-y-6">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Tambah Kategori Pemilihan</h3>
@@ -210,11 +208,7 @@
 
       <!-- SUB-MENU 4: VOTERS & IMPORT EXCEL/CSV -->
       <div id="admin-sub-voters" class="admin-sub-page hidden space-y-6">
-        
-        <!-- Form Tambah Voter Manual & Fitur Import CSV/Excel -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Tambah Manual -->
           <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Registrasi Pemilih Manual</h3>
             <form onsubmit="addVoter(event)" class="space-y-4">
@@ -245,7 +239,6 @@
             </form>
           </div>
 
-          <!-- Fitur Import Excel/CSV -->
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
             <div>
               <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Impor via Excel / CSV</h3>
@@ -266,10 +259,8 @@
               </button>
             </div>
           </div>
-
         </div>
 
-        <!-- Tabel Voters -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-bold text-slate-800">Daftar Token Pemilih</h3>
@@ -291,7 +282,6 @@
             </table>
           </div>
         </div>
-
       </div>
 
       <!-- SUB-MENU 5: HASIL SEMENTARA ADMIN -->
@@ -308,6 +298,32 @@
     </div>
 
   </main>
+
+  <!-- MODAL EDIT CALON / KANDIDAT -->
+  <div id="modal-edit-candidate" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 class="text-lg font-bold text-slate-900 border-b pb-2">Edit Data Calon</h3>
+      <form onsubmit="saveCandidateEdit(event)" class="space-y-3">
+        <input type="hidden" id="edit-cand-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Calon</label>
+          <input type="text" id="edit-cand-name" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">URL Foto Calon</label>
+          <input type="url" id="edit-cand-photo" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Visi & Misi Ringkas</label>
+          <textarea id="edit-cand-vision" rows="3" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeEditCandidateModal()" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- MODAL EDIT HAK AKSES VOTER -->
   <div id="modal-edit-voter" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -577,31 +593,135 @@
       renderVoterCategoryCheckboxes();
     }
 
+    function deleteCategory(catId) {
+      openConfirmModal("Hapus Kategori", "Menghapus kategori ini juga akan menghapus seluruh calon di dalamnya. Lanjutkan?", () => {
+        const db = getData();
+        db.categories = (db.categories || []).filter(c => c.id !== catId);
+        db.candidates = (db.candidates || []).filter(c => c.categoryId !== catId);
+        window.saveCloudData(db);
+        renderAdminCategoriesAndCandidates();
+        renderVoterCategoryCheckboxes();
+      });
+    }
+
+    function addCandidate(e, catId) {
+      e.preventDefault();
+      const form = e.target;
+      const db = getData();
+      if (!db.candidates) db.candidates = [];
+
+      db.candidates.push({
+        id: 'cand-' + Date.now(),
+        categoryId: catId,
+        name: form.elements['candName'].value.trim(),
+        photo: form.elements['candPhoto'].value.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
+        vision: form.elements['candVision'].value.trim(),
+        votes: 0
+      });
+
+      window.saveCloudData(db);
+      renderAdminCategoriesAndCandidates();
+    }
+
+    function openEditCandidateModal(candId) {
+      const db = getData();
+      const cand = (db.candidates || []).find(c => c.id === candId);
+      if (!cand) return;
+
+      document.getElementById('edit-cand-id').value = cand.id;
+      document.getElementById('edit-cand-name').value = cand.name;
+      document.getElementById('edit-cand-photo').value = cand.photo;
+      document.getElementById('edit-cand-vision').value = cand.vision;
+
+      document.getElementById('modal-edit-candidate').classList.remove('hidden');
+    }
+
+    function closeEditCandidateModal() {
+      document.getElementById('modal-edit-candidate').classList.add('hidden');
+    }
+
+    function saveCandidateEdit(e) {
+      e.preventDefault();
+      const candId = document.getElementById('edit-cand-id').value;
+      const db = getData();
+      const cand = (db.candidates || []).find(c => c.id === candId);
+
+      if (cand) {
+        cand.name = document.getElementById('edit-cand-name').value.trim();
+        cand.photo = document.getElementById('edit-cand-photo').value.trim();
+        cand.vision = document.getElementById('edit-cand-vision').value.trim();
+        window.saveCloudData(db);
+        renderAdminCategoriesAndCandidates();
+      }
+      closeEditCandidateModal();
+    }
+
+    function deleteCandidate(candId) {
+      openConfirmModal("Hapus Calon", "Apakah Anda yakin ingin menghapus calon ini?", () => {
+        const db = getData();
+        db.candidates = (db.candidates || []).filter(c => c.id !== candId);
+        window.saveCloudData(db);
+        renderAdminCategoriesAndCandidates();
+      });
+    }
+
     function renderAdminCategoriesAndCandidates() {
       const db = getData();
       const container = document.getElementById('admin-categories-container');
       container.innerHTML = '';
 
-      (db.categories || []).forEach(cat => {
+      if (!db.categories || db.categories.length === 0) {
+        container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Belum ada kategori pemilihan. Silakan buat di atas.</div>`;
+        return;
+      }
+
+      db.categories.forEach(cat => {
         const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+
         container.innerHTML += `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
               <h4 class="text-lg font-bold text-slate-900">${cat.name}</h4>
+              <button onclick="deleteCategory('${cat.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold">
+                <i class="fa-solid fa-trash"></i> Hapus Kategori
+              </button>
             </div>
+
+            <!-- Kartu Daftar Calon -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               ${candidates.map(c => `
-                <div class="bg-slate-50 p-3 rounded-xl border flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <img src="${c.photo}" class="w-12 h-12 object-cover rounded-lg">
-                    <div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
+                  <div class="flex items-start gap-3">
+                    <img src="${c.photo}" class="w-14 h-14 object-cover rounded-lg border">
+                    <div class="flex-1">
                       <div class="font-bold text-sm text-slate-800">${c.name}</div>
-                      <div class="text-xs text-slate-500 truncate max-w-[150px]">${c.vision}</div>
+                      <div class="text-xs text-slate-500 line-clamp-2 mt-0.5"><strong>Visi Misi:</strong> ${c.vision}</div>
                     </div>
+                  </div>
+                  <div class="flex justify-end gap-2 border-t pt-2">
+                    <button onclick="openEditCandidateModal('${c.id}')" class="px-2.5 py-1 bg-teal-100 hover:bg-teal-200 text-custom-teal font-semibold rounded text-xs">
+                      <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                    <button onclick="deleteCandidate('${c.id}')" class="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-600 font-semibold rounded text-xs">
+                      <i class="fa-solid fa-trash-can"></i> Hapus
+                    </button>
                   </div>
                 </div>
               `).join('')}
             </div>
+
+            <!-- Form Tambah Calon Baru -->
+            <form onsubmit="addCandidate(event, '${cat.id}')" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
+              <span class="text-xs font-bold text-slate-600 uppercase">+ Tambah Calon Baru ke ${cat.name}</span>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <input type="text" name="candName" placeholder="Nama Calon" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+                <input type="url" name="candPhoto" placeholder="URL Foto Calon" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+                <input type="text" name="candVision" placeholder="Visi & Misi Ringkas" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+              </div>
+              <button type="submit" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">
+                + Simpan Calon Ke Cloud
+              </button>
+            </form>
           </div>
         `;
       });
