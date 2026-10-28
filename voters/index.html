@@ -271,6 +271,7 @@
       const msgEl = document.getElementById('voter-token-msg');
       const db = getData();
 
+      // VALIDASI JADWAL OPERASIONAL DARI ADMIN
       const now = new Date();
       if (db.settings?.startTime && new Date(db.settings.startTime) > now) {
         showMsg(msgEl, "Pemilihan belum dibuka. Silakan cek kembali sesuai jadwal.", "text-amber-600");
