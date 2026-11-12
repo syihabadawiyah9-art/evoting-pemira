@@ -83,15 +83,18 @@
       <!-- Top Dashboard Info -->
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span class="text-xs font-bold text-custom-teal uppercase tracking-wider">Panel Pengelola Pemilu</span>
-          <h2 class="text-2xl font-bold text-slate-900">Dashboard Admin</h2>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-custom-teal uppercase tracking-wider">Panel Pengelola Pemilu</span>
+            <span id="current-admin-role-badge" class="px-2.5 py-0.5 bg-teal-100 text-custom-teal text-[11px] font-bold rounded-full"></span>
+          </div>
+          <h2 id="current-admin-welcome-text" class="text-2xl font-bold text-slate-900">Dashboard Admin</h2>
         </div>
-        <button onclick="requestResetAllData()" class="px-3.5 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+        <button id="btn-superadmin-reset" onclick="requestResetAllData()" class="hidden px-3.5 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
           <i class="fa-solid fa-trash-arrow-up"></i> Reset System Data
         </button>
       </div>
 
-      <!-- Admin Sub-Menu (5 Navigasi) -->
+      <!-- Admin Sub-Menu (Navigasi Dinamis Berdasarkan Role) -->
       <div class="flex border-b border-slate-200 overflow-x-auto bg-white rounded-xl shadow-sm p-1.5 gap-1">
         <button onclick="switchAdminMenu('setting')" id="admin-menu-btn-setting" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2">
           <i class="fa-solid fa-sliders"></i> 1. Setting & Admin
@@ -110,7 +113,7 @@
         </button>
       </div>
 
-      <!-- SUB-MENU 1: SETTING & KELOLA MULTI-ADMIN -->
+      <!-- SUB-MENU 1: SETTING & KELOLA MULTI-ADMIN (KHUSUS SUPERADMIN syihabadaw) -->
       <div id="admin-sub-setting" class="admin-sub-page bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
         <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Pengaturan Umum Pemilihan</h3>
         
@@ -140,15 +143,18 @@
           <div class="flex justify-between items-center">
             <div>
               <h3 class="text-lg font-bold text-slate-800">Manajemen Akun Admin (Multi-Admin)</h3>
-              <p class="text-xs text-slate-500">Tambah atau ubah username & password panitia pengelola pemilu.</p>
+              <p class="text-xs text-slate-500">Tambah atau ubah username, password, dan hak akses kategori admin panitia.</p>
             </div>
           </div>
 
-          <form onsubmit="addAdminUser(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <input type="text" id="input-new-admin-user" placeholder="Username Baru" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+          <form onsubmit="addAdminUser(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <input type="text" id="input-new-admin-user" placeholder="Username" required class="px-3 py-2 text-xs rounded-lg border outline-none">
             <input type="password" id="input-new-admin-pass" placeholder="Password (Min 6 Karakter)" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+            <select id="input-new-admin-role" required class="px-3 py-2 text-xs rounded-lg border outline-none bg-white">
+              <option value="ALL">Super Admin (Semua Akses)</option>
+            </select>
             <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs">
-              + Tambah Akun Admin
+              + Tambah Admin
             </button>
           </form>
 
@@ -158,6 +164,7 @@
                 <tr>
                   <th class="p-3">Username</th>
                   <th class="p-3">Password</th>
+                  <th class="p-3">Hak Akses Kategori</th>
                   <th class="p-3 text-right">Aksi</th>
                 </tr>
               </thead>
@@ -167,7 +174,7 @@
         </div>
       </div>
 
-      <!-- SUB-MENU 2: WAKTU PEMILU -->
+      <!-- SUB-MENU 2: WAKTU PEMILU (KHUSUS SUPERADMIN syihabadaw) -->
       <div id="admin-sub-datetime" class="admin-sub-page hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
         <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Jadwal Operasional Pemilihan</h3>
         <p class="text-xs text-slate-500">Sistem akan mengunci bilik suara secara otomatis jika pemilih memasukkan token di luar waktu ini.</p>
@@ -192,7 +199,7 @@
 
       <!-- SUB-MENU 3: KOTAK SUARA & KELOLA PASLON -->
       <div id="admin-sub-ballot" class="admin-sub-page hidden space-y-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div id="add-category-wrapper" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Tambah Kategori Pemilihan</h3>
           <form onsubmit="addCategory(event)" class="flex gap-2 max-w-xl">
             <input type="text" id="input-cat-name" placeholder="Contoh: Pemilihan Ketua PMR" required class="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-600 outline-none text-sm">
@@ -254,7 +261,7 @@
               <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Pilih File CSV/Excel</label>
               <input type="file" id="input-file-csv" accept=".csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal hover:file:bg-teal-100">
               <button onclick="processCSVImport()" class="w-full mt-3 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs transition">
-                <i class="fa-solid fa-file-import mr-1"></i> Impor Seluruh Data Pemilih
+                <i class="fa-solid fa-file-import mr-1"></i> Impor Data Pemilih
               </button>
             </div>
           </div>
@@ -265,7 +272,7 @@
             <h3 class="text-lg font-bold text-slate-800">Daftar Token Pemilih</h3>
             <div class="flex items-center gap-2">
               <span id="voter-count-badge" class="px-3 py-1 bg-custom-teal-light text-custom-teal text-xs font-bold rounded-full">Total: 0</span>
-              <button onclick="deleteAllVoters()" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition">
+              <button id="btn-delete-all-voters" onclick="deleteAllVoters()" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition">
                 <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Pemilih
               </button>
             </div>
@@ -412,7 +419,7 @@
 
     window.DEFAULT_DATA = {
       adminUsers: [
-        { id: "adm-1", username: "admin", password: "password123" }
+        { id: "adm-1", username: "syihabadaw", password: "password123", role: "ALL" }
       ],
       settings: {
         title: "Pemilu Raya MTs Al Ishlah Panambangan 2026",
@@ -440,6 +447,7 @@
 
     let selectedVoterForEdit = null;
     let pendingAction = null;
+    let currentAdminAccount = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('logo-mts-header').src = LOGOS.mts;
@@ -450,17 +458,59 @@
     function getData() { return window.cloudData || window.DEFAULT_DATA; }
 
     function checkAdminSession() {
-      const isAdmin = sessionStorage.getItem('isAdminLoggedIn') || localStorage.getItem('isAdminLoggedIn');
-      if (isAdmin === 'true') {
+      const loggedUser = sessionStorage.getItem('adminUsername') || localStorage.getItem('adminUsername');
+      const db = getData();
+
+      if (loggedUser) {
+        currentAdminAccount = (db.adminUsers || []).find(a => a.username.toLowerCase() === loggedUser.toLowerCase());
+      }
+
+      if (currentAdminAccount) {
         document.getElementById('admin-login-card').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
         document.getElementById('logout-btn').classList.remove('hidden');
         document.getElementById('logout-btn').classList.add('flex');
+        
+        applyAdminRolePermissions();
         loadAdminData();
       } else {
         document.getElementById('admin-login-card').classList.remove('hidden');
         document.getElementById('admin-dashboard').classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
+      }
+    }
+
+    function isSuperAdmin() {
+      return currentAdminAccount && (currentAdminAccount.username.toLowerCase() === 'syihabadaw' || currentAdminAccount.role === 'ALL');
+    }
+
+    function getAdminAllowedCategories() {
+      const db = getData();
+      if (isSuperAdmin()) {
+        return db.categories || [];
+      }
+      return (db.categories || []).filter(c => c.id === currentAdminAccount.role);
+    }
+
+    function applyAdminRolePermissions() {
+      const isSuper = isSuperAdmin();
+      
+      // Sembunyikan Navigasi Menu 1 & 2 untuk Admin Non-Super
+      document.getElementById('admin-menu-btn-setting').style.display = isSuper ? 'flex' : 'none';
+      document.getElementById('admin-menu-btn-datetime').style.display = isSuper ? 'flex' : 'none';
+      document.getElementById('btn-superadmin-reset').style.display = isSuper ? 'flex' : 'none';
+      document.getElementById('add-category-wrapper').style.display = isSuper ? 'block' : 'none';
+      document.getElementById('btn-delete-all-voters').style.display = isSuper ? 'flex' : 'none';
+
+      // Set Welcome & Badge Title
+      document.getElementById('current-admin-welcome-text').innerText = `Dashboard Admin - ${currentAdminAccount.username}`;
+      document.getElementById('current-admin-role-badge').innerText = isSuper ? 'Super Admin (Full Akses)' : 'Admin Kategori Khusus';
+
+      // Default buka menu yang diizinkan jika admin non-super
+      if (!isSuper) {
+        switchAdminMenu('ballot');
+      } else {
+        switchAdminMenu('setting');
       }
     }
 
@@ -471,12 +521,13 @@
       const msg = document.getElementById('admin-login-msg');
       const db = getData();
 
-      const adminUsers = db.adminUsers || [{ username: "admin", password: "password123" }];
-      const valid = adminUsers.some(a => a.username.toLowerCase() === u && a.password === p);
+      const adminUsers = db.adminUsers || [{ username: "syihabadaw", password: "password123", role: "ALL" }];
+      const foundAdmin = adminUsers.find(a => a.username.toLowerCase() === u && a.password === p);
 
-      if (valid) {
-        sessionStorage.setItem('isAdminLoggedIn', 'true');
-        localStorage.setItem('isAdminLoggedIn', 'true');
+      if (foundAdmin) {
+        currentAdminAccount = foundAdmin;
+        sessionStorage.setItem('adminUsername', foundAdmin.username);
+        localStorage.setItem('adminUsername', foundAdmin.username);
         checkAdminSession();
       } else {
         showMsg(msg, "Username atau password salah!", "text-red-600");
@@ -484,18 +535,24 @@
     }
 
     function adminLogout() {
-      sessionStorage.removeItem('isAdminLoggedIn');
-      localStorage.removeItem('isAdminLoggedIn');
+      sessionStorage.removeItem('adminUsername');
+      localStorage.removeItem('adminUsername');
+      currentAdminAccount = null;
       checkAdminSession();
     }
 
     function switchAdminMenu(menu) {
       document.querySelectorAll('.admin-sub-page').forEach(p => p.classList.add('hidden'));
       ['setting', 'datetime', 'ballot', 'voters', 'live'].forEach(b => {
-        document.getElementById(`admin-menu-btn-${b}`).className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2";
+        const btn = document.getElementById(`admin-menu-btn-${b}`);
+        if (btn) btn.className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2";
       });
-      document.getElementById(`admin-sub-${menu}`).classList.remove('hidden');
-      document.getElementById(`admin-menu-btn-${menu}`).className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2";
+
+      const activeBtn = document.getElementById(`admin-menu-btn-${menu}`);
+      if (activeBtn) {
+        document.getElementById(`admin-sub-${menu}`).classList.remove('hidden');
+        activeBtn.className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2";
+      }
 
       if (menu === 'voters') renderVoterCategoryCheckboxes();
       if (menu === 'live') renderAdminLiveResults();
@@ -503,13 +560,14 @@
 
     function loadAdminData() {
       const db = getData();
-      if (db.settings) {
+      if (db.settings && isSuperAdmin()) {
         document.getElementById('setting-title').value = db.settings.title || '';
         document.getElementById('setting-hide-results').checked = db.settings.hideResults || false;
         document.getElementById('setting-confirm-vote').checked = db.settings.confirmVote || false;
         document.getElementById('datetime-start').value = db.settings.startTime || '';
         document.getElementById('datetime-end').value = db.settings.endTime || '';
       }
+      populateRoleDropdownOptions();
       renderAdminUsersTable();
       renderAdminCategoriesAndCandidates();
       renderVotersTable();
@@ -517,8 +575,20 @@
       renderAdminLiveResults();
     }
 
+    function populateRoleDropdownOptions() {
+      const db = getData();
+      const select = document.getElementById('input-new-admin-role');
+      if (!select) return;
+
+      select.innerHTML = `<option value="ALL">Super Admin (Semua Akses)</option>`;
+      (db.categories || []).forEach(cat => {
+        select.innerHTML += `<option value="${cat.id}">Khusus ${cat.name}</option>`;
+      });
+    }
+
     function saveSettings(e) {
       e.preventDefault();
+      if (!isSuperAdmin()) return;
       const db = getData();
       if (!db.settings) db.settings = {};
       db.settings.title = document.getElementById('setting-title').value;
@@ -530,12 +600,14 @@
 
     function addAdminUser(e) {
       e.preventDefault();
+      if (!isSuperAdmin()) return;
       const u = document.getElementById('input-new-admin-user').value.trim();
       const p = document.getElementById('input-new-admin-pass').value.trim();
+      const r = document.getElementById('input-new-admin-role').value;
       const db = getData();
 
       if (!db.adminUsers) db.adminUsers = [];
-      db.adminUsers.push({ id: 'adm-' + Date.now(), username: u, password: p });
+      db.adminUsers.push({ id: 'adm-' + Date.now(), username: u, password: p, role: r });
       window.saveCloudData(db);
 
       document.getElementById('input-new-admin-user').value = '';
@@ -544,6 +616,7 @@
     }
 
     function deleteAdminUser(id) {
+      if (!isSuperAdmin()) return;
       const db = getData();
       if ((db.adminUsers || []).length <= 1) {
         openConfirmModal("Gagal", "Minimal harus ada 1 akun admin aktif!", null, false);
@@ -557,14 +630,24 @@
     }
 
     function renderAdminUsersTable() {
+      if (!isSuperAdmin()) return;
       const db = getData();
       const tbody = document.getElementById('admin-users-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
+
       (db.adminUsers || []).forEach(a => {
+        let roleName = "Super Admin (Semua Akses)";
+        if (a.role !== "ALL") {
+          const cat = (db.categories || []).find(c => c.id === a.role);
+          roleName = cat ? `Khusus ${cat.name}` : a.role;
+        }
+
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-semibold text-slate-800">${a.username}</td>
             <td class="p-3 font-mono text-slate-500">${a.password}</td>
+            <td class="p-3 font-semibold text-custom-teal text-xs">${roleName}</td>
             <td class="p-3 text-right">
               <button onclick="deleteAdminUser('${a.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">
                 <i class="fa-solid fa-trash-can"></i> Hapus
@@ -577,6 +660,7 @@
 
     function saveDateTime(e) {
       e.preventDefault();
+      if (!isSuperAdmin()) return;
       const db = getData();
       if (!db.settings) db.settings = {};
       db.settings.startTime = document.getElementById('datetime-start').value;
@@ -587,6 +671,7 @@
 
     function addCategory(e) {
       e.preventDefault();
+      if (!isSuperAdmin()) return;
       const nameInput = document.getElementById('input-cat-name');
       const db = getData();
       if (!db.categories) db.categories = [];
@@ -595,9 +680,11 @@
       nameInput.value = '';
       renderAdminCategoriesAndCandidates();
       renderVoterCategoryCheckboxes();
+      populateRoleDropdownOptions();
     }
 
     function deleteCategory(catId) {
+      if (!isSuperAdmin()) return;
       openConfirmModal("Hapus Kategori", "Menghapus kategori ini juga akan menghapus seluruh calon di dalamnya. Lanjutkan?", () => {
         const db = getData();
         db.categories = (db.categories || []).filter(c => c.id !== catId);
@@ -605,6 +692,7 @@
         window.saveCloudData(db);
         renderAdminCategoriesAndCandidates();
         renderVoterCategoryCheckboxes();
+        populateRoleDropdownOptions();
       });
     }
 
@@ -670,28 +758,31 @@
     }
 
     function renderAdminCategoriesAndCandidates() {
-      const db = getData();
       const container = document.getElementById('admin-categories-container');
       container.innerHTML = '';
 
-      if (!db.categories || db.categories.length === 0) {
-        container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Belum ada kategori pemilihan. Silakan buat di atas.</div>`;
+      const allowedCategories = getAdminAllowedCategories();
+      const db = getData();
+
+      if (!allowedCategories || allowedCategories.length === 0) {
+        container.innerHTML = `<div class="p-6 bg-white rounded-xl text-center text-slate-500">Tidak ada kategori pemilihan yang ditugaskan ke akun Anda.</div>`;
         return;
       }
 
-      db.categories.forEach(cat => {
+      allowedCategories.forEach(cat => {
         const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
 
         container.innerHTML += `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
               <h4 class="text-lg font-bold text-slate-900">${cat.name}</h4>
-              <button onclick="deleteCategory('${cat.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold">
-                <i class="fa-solid fa-trash"></i> Hapus Kategori
-              </button>
+              ${isSuperAdmin() ? `
+                <button onclick="deleteCategory('${cat.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold">
+                  <i class="fa-solid fa-trash"></i> Hapus Kategori
+                </button>
+              ` : ''}
             </div>
 
-            <!-- Kartu Daftar Calon -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               ${candidates.map(c => `
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
@@ -714,7 +805,6 @@
               `).join('')}
             </div>
 
-            <!-- Form Tambah Calon Baru -->
             <form onsubmit="addCandidate(event, '${cat.id}')" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
               <span class="text-xs font-bold text-slate-600 uppercase">+ Tambah Calon Baru ke ${cat.name}</span>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -732,13 +822,14 @@
     }
 
     function renderVoterCategoryCheckboxes() {
-      const db = getData();
       const container = document.getElementById('voter-category-checkboxes');
       container.innerHTML = '';
-      (db.categories || []).forEach(cat => {
+      const allowedCategories = getAdminAllowedCategories();
+
+      allowedCategories.forEach(cat => {
         container.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded border text-xs font-medium">
-            <input type="checkbox" name="voter-cat-scope" value="${cat.id}" checked class="w-4 h-4 text-teal-600">
+            <input type="checkbox" name="voter-cat-scope" value="${cat.id}" checked ${!isSuperAdmin() ? 'disabled' : ''} class="w-4 h-4 text-teal-600">
             <span>${cat.name}</span>
           </label>
         `;
@@ -767,7 +858,9 @@
     }
 
     function downloadCSVTemplate() {
-      const csvContent = "data:text/csv;charset=utf-8,Nama;Alokasi Hak Suara;Token\nAhmad Siswa;OSIS, Pramuka Putra, Paskibra;EV-1001\nAnisa Siswi;OSIS, PMR;EV-1002";
+      const allowedCategories = getAdminAllowedCategories();
+      const exampleCatName = allowedCategories.map(c => c.name).join(', ') || 'OSIS';
+      const csvContent = `data:text/csv;charset=utf-8,Nama;Alokasi Hak Suara;Token\nAhmad Siswa;${exampleCatName};EV-1001`;
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -777,7 +870,6 @@
       document.body.removeChild(link);
     }
 
-    // FUNGSI IMPOR CSV FLEKSIBEL DENGAN LOGIKA COCOK KATA KUNCI
     function processCSVImport() {
       const fileInput = document.getElementById('input-file-csv');
       const file = fileInput.files[0];
@@ -793,6 +885,7 @@
         const db = getData();
         if (!db.voters) db.voters = [];
 
+        const allowedCategories = getAdminAllowedCategories();
         let importedCount = 0;
 
         for (let i = 1; i < lines.length; i++) {
@@ -806,20 +899,20 @@
             const scopeStr = cols[1].replace(/"/g, '').trim().toLowerCase();
             const token = cols[2].replace(/"/g, '').trim().toUpperCase();
 
-            // Pencocokan fleksibel kata kunci nama kategori
             const assignedCats = [];
-            (db.categories || []).forEach(c => {
+            allowedCategories.forEach(c => {
               const catNameLower = c.name.toLowerCase();
-              
-              // Cek setiap frasa terpisah koma dari CSV
-              scopeStr.split(',').forEach(item => {
-                const itemClean = item.trim();
-                if (itemClean && catNameLower.includes(itemClean)) {
-                  if (!assignedCats.includes(c.id)) {
-                    assignedCats.push(c.id);
+              if (isSuperAdmin()) {
+                scopeStr.split(',').forEach(item => {
+                  const itemClean = item.trim();
+                  if (itemClean && catNameLower.includes(itemClean)) {
+                    if (!assignedCats.includes(c.id)) assignedCats.push(c.id);
                   }
-                }
-              });
+                });
+              } else {
+                // Untuk Admin Non-Super, otomatis daftarkan ke kategorinya
+                if (!assignedCats.includes(c.id)) assignedCats.push(c.id);
+              }
             });
 
             if (!db.voters.some(v => v.token === token)) {
@@ -846,6 +939,7 @@
     }
 
     function deleteAllVoters() {
+      if (!isSuperAdmin()) return;
       openConfirmModal("Hapus Semua Pemilih", "Apakah Anda yakin ingin MENGHAPUS SELURUH DAFTAR PEMILIH? Tindakan ini tidak dapat dibatalkan.", () => {
         const db = getData();
         db.voters = [];
@@ -859,15 +953,23 @@
       const tbody = document.getElementById('voters-table-body');
       if (!tbody) return;
 
-      document.getElementById('voter-count-badge').innerText = `Total: ${(db.voters || []).length}`;
+      const allowedCategories = getAdminAllowedCategories();
+      const allowedCatIds = allowedCategories.map(c => c.id);
+
+      // Filter pemilih yang memiliki hak akses sesuai kategori admin ini
+      const filteredVoters = isSuperAdmin() 
+        ? (db.voters || []) 
+        : (db.voters || []).filter(v => (v.assignedCategories || []).some(id => allowedCatIds.includes(id)));
+
+      document.getElementById('voter-count-badge').innerText = `Total: ${filteredVoters.length}`;
       tbody.innerHTML = '';
 
-      if (!db.voters || db.voters.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada pemilih terdaftar.</td></tr>`;
+      if (filteredVoters.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada pemilih terdaftar untuk kategori Anda.</td></tr>`;
         return;
       }
 
-      (db.voters || []).forEach(v => {
+      filteredVoters.forEach(v => {
         const assignedCats = (db.categories || []).filter(c => (v.assignedCategories || []).includes(c.id));
         const catBadges = assignedCats.length > 0 
           ? assignedCats.map(c => `<span class="inline-block bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded border mr-1 mb-1 font-medium">${c.name}</span>`).join('')
@@ -905,7 +1007,9 @@
       const container = document.getElementById('modal-edit-category-checkboxes');
       container.innerHTML = '';
 
-      (db.categories || []).forEach(cat => {
+      const allowedCategories = getAdminAllowedCategories();
+
+      allowedCategories.forEach(cat => {
         const isChecked = (selectedVoterForEdit.assignedCategories || []).includes(cat.id);
         container.innerHTML += `
           <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded text-xs font-medium">
@@ -928,7 +1032,14 @@
       const db = getData();
       const voter = (db.voters || []).find(v => v.token === selectedVoterForEdit.token);
       if (voter) {
-        voter.assignedCategories = Array.from(document.querySelectorAll('input[name="edit-voter-cat-scope"]:checked')).map(cb => cb.value);
+        const checkedScopes = Array.from(document.querySelectorAll('input[name="edit-voter-cat-scope"]:checked')).map(cb => cb.value);
+        if (isSuperAdmin()) {
+          voter.assignedCategories = checkedScopes;
+        } else {
+          // Bagi Admin non-super, perbarui status centang khusus kategorinya tanpa menghapus kategori lain
+          const allowedCatIds = getAdminAllowedCategories().map(c => c.id);
+          voter.assignedCategories = (voter.assignedCategories || []).filter(id => !allowedCatIds.includes(id)).concat(checkedScopes);
+        }
         window.saveCloudData(db);
         renderVotersTable();
       }
@@ -940,7 +1051,9 @@
       const container = document.getElementById('admin-live-results-container');
       if (!container) return;
 
-      container.innerHTML = (db.categories || []).map(cat => {
+      const allowedCategories = getAdminAllowedCategories();
+
+      container.innerHTML = allowedCategories.map(cat => {
         const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
         const eligibleVoters = (db.voters || []).filter(v => (v.assignedCategories || []).includes(cat.id));
         const totalEligible = eligibleVoters.length;
@@ -995,6 +1108,7 @@
     }
 
     function requestResetAllData() {
+      if (!isSuperAdmin()) return;
       openConfirmModal("Reset Seluruh Data Cloud", "Kembalikan seluruh database e-voting ke data awal?", () => {
         window.saveCloudData(window.DEFAULT_DATA);
         location.reload();
