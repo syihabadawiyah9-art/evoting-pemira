@@ -315,25 +315,41 @@
       }
 
       voterCategories.forEach((cat, idx) => {
-        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+        // Urutkan kandidat berdasarkan nomor urut (number)
+        const candidates = (db.candidates || [])
+          .filter(c => c.categoryId === cat.id)
+          .sort((a, b) => (a.number || 0) - (b.number || 0));
 
         let candHtml = '';
         if (candidates.length === 0) {
           candHtml = `<div class="p-4 bg-slate-50 text-slate-400 text-sm text-center rounded-xl">Belum ada kandidat pada kategori ini.</div>`;
         } else {
           candHtml = `
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               ${candidates.map(c => `
-                <label class="relative bg-slate-50 hover:bg-slate-100 p-4 rounded-xl border-2 border-slate-200 cursor-pointer transition flex flex-col justify-between space-y-3 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/50">
-                  <input type="radio" name="ballot-cat-${cat.id}" value="${c.id}" class="absolute top-4 right-4 w-5 h-5 text-teal-600 focus:ring-teal-500">
+                <label class="relative bg-slate-50 hover:bg-slate-100 p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-sm hover:shadow-md has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/50 has-[:checked]:ring-2 has-[:checked]:ring-teal-500">
+                  <input type="radio" name="ballot-cat-${cat.id}" value="${c.id}" class="absolute top-4 right-4 w-5 h-5 text-teal-600 focus:ring-teal-500 z-10">
+                  
                   <div class="space-y-3">
-                    <img src="${c.photo}" alt="${c.name}" class="w-full h-40 object-cover rounded-lg border border-slate-200">
+                    <!-- Container Foto Pasfoto Portrait (Rasio 3:4 / 350x450) -->
+                    <div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 border border-slate-200">
+                      <img src="${c.photo}" alt="${c.name}" class="w-full h-full object-cover object-top">
+                      
+                      <!-- Badge Nomor Urut Kandidat Bulat Mencolok -->
+                      <div class="absolute top-3 left-3 bg-custom-gradient text-white font-extrabold text-sm w-9 h-9 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                        ${String(c.number || 1).padStart(2, '0')}
+                      </div>
+                    </div>
+
                     <div>
-                      <h4 class="font-bold text-slate-900 text-lg">${c.name}</h4>
-                      <p class="text-xs text-slate-500 mt-1"><strong>Visi & Misi:</strong> ${c.vision}</p>
+                      <h4 class="font-bold text-slate-900 text-lg leading-snug">
+                        <span class="text-custom-teal font-extrabold mr-1">#${String(c.number || 1).padStart(2, '0')}</span> ${c.name}
+                      </h4>
+                      <p class="text-xs text-slate-600 mt-1.5 leading-relaxed"><strong>Visi & Misi:</strong> ${c.vision}</p>
                     </div>
                   </div>
-                  <div class="text-xs font-bold text-center text-custom-teal pt-2 border-t border-slate-200">
+
+                  <div class="text-xs font-bold text-center text-custom-teal py-2 bg-white rounded-xl border border-slate-200 uppercase tracking-wider">
                     Pilih Kandidat
                   </div>
                 </label>
@@ -343,7 +359,7 @@
         }
 
         container.innerHTML += `
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
             <div class="flex items-center justify-between border-b pb-4">
               <div class="flex items-center gap-3">
                 <span class="w-8 h-8 bg-custom-gradient text-white rounded-full flex items-center justify-center text-sm font-bold shadow">${idx + 1}</span>
@@ -416,7 +432,10 @@
       } else {
         hiddenCard.classList.add('hidden');
         container.innerHTML = (db.categories || []).map(cat => {
-          const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+          const candidates = (db.candidates || [])
+            .filter(c => c.categoryId === cat.id)
+            .sort((a, b) => (a.number || 0) - (b.number || 0));
+
           const eligibleVoters = (db.voters || []).filter(v => (v.assignedCategories || []).includes(cat.id));
           const totalEligible = eligibleVoters.length;
           const votedCount = eligibleVoters.filter(v => v.hasVoted).length;
@@ -429,7 +448,7 @@
             return `
               <div class="space-y-1.5">
                 <div class="flex justify-between items-center text-sm font-semibold">
-                  <span class="text-slate-800">${c.name}</span>
+                  <span class="text-slate-800"><strong class="text-custom-teal">No. ${String(c.number || 1).padStart(2, '0')}</strong> - ${c.name}</span>
                   <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
                 </div>
                 <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
