@@ -94,7 +94,7 @@
         </button>
       </div>
 
-      <!-- Admin Sub-Menu (Navigasi Dinamis Berdasarkan Role) -->
+      <!-- Admin Sub-Menu -->
       <div class="flex border-b border-slate-200 overflow-x-auto bg-white rounded-xl shadow-sm p-1.5 gap-1">
         <button onclick="switchAdminMenu('setting')" id="admin-menu-btn-setting" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition bg-custom-teal-light text-custom-teal flex items-center gap-2">
           <i class="fa-solid fa-sliders"></i> 1. Setting & Admin
@@ -316,12 +316,18 @@
       <h3 class="text-lg font-bold text-slate-900 border-b pb-2">Edit Data Calon</h3>
       <form onsubmit="saveCandidateEdit(event)" class="space-y-3">
         <input type="hidden" id="edit-cand-id">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Calon</label>
-          <input type="text" id="edit-cand-name" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Urut</label>
+            <input type="number" id="edit-cand-num" min="1" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none font-bold text-center">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Calon</label>
+            <input type="text" id="edit-cand-name" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
+          </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ganti Foto Calon (Ukuran 350x450 Portrait)</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ganti Foto (350x450 Portrait - Opsional)</label>
           <input type="file" id="edit-cand-photo-file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal">
         </div>
         <div>
@@ -436,8 +442,8 @@
         { id: "cat-5", name: "Pemilihan Ketua PMR" }
       ],
       candidates: [
-        { id: "cand-1", categoryId: "cat-1", name: "Andi Pratama", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300", vision: "Mewujudkan sekolah digital & inklusif.", votes: 0 },
-        { id: "cand-2", categoryId: "cat-1", name: "Budi Santoso", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300", vision: "Mengembangkan potensi kepemimpinan.", votes: 0 }
+        { id: "cand-1", categoryId: "cat-1", number: 1, name: "Andi Pratama", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300", vision: "Mewujudkan sekolah digital & inklusif.", votes: 0 },
+        { id: "cand-2", categoryId: "cat-1", number: 2, name: "Budi Santoso", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300", vision: "Mengembangkan potensi kepemimpinan.", votes: 0 }
       ],
       voters: [
         { name: "Ahmad Siswa", token: "EV-1001", hasVoted: false, assignedCategories: ["cat-1", "cat-2", "cat-4"] },
@@ -463,18 +469,15 @@
             canvas.height = targetHeight;
             const ctx = canvas.getContext('2d');
 
-            // Hitung logika Center Crop agar foto tidak terdistorsi (gepeng)
             const targetRatio = targetWidth / targetHeight;
             const imgRatio = img.width / img.height;
 
             let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
 
             if (imgRatio > targetRatio) {
-              // Gambar terlalu lebar
               sourceWidth = img.height * targetRatio;
               sourceX = (img.width - sourceWidth) / 2;
             } else {
-              // Gambar terlalu tinggi
               sourceHeight = img.width / targetRatio;
               sourceY = (img.height - sourceHeight) / 2;
             }
@@ -732,11 +735,12 @@
       });
     }
 
-    // PROSES TAMBAH CALON DENGAN UPLOAD FOTO 350x450
+    // TAMBAH CALON DENGAN NOMOR URUT DAN FOTO 350x450
     async function addCandidate(e, catId) {
       e.preventDefault();
       const form = e.target;
       const fileInput = form.elements['candPhotoFile'];
+      const numInput = parseInt(form.elements['candNumber'].value) || 1;
       const db = getData();
       if (!db.candidates) db.candidates = [];
 
@@ -754,6 +758,7 @@
       db.candidates.push({
         id: 'cand-' + Date.now(),
         categoryId: catId,
+        number: numInput,
         name: form.elements['candName'].value.trim(),
         photo: photoBase64,
         vision: form.elements['candVision'].value.trim(),
@@ -770,6 +775,7 @@
       if (!cand) return;
 
       document.getElementById('edit-cand-id').value = cand.id;
+      document.getElementById('edit-cand-num').value = cand.number || 1;
       document.getElementById('edit-cand-name').value = cand.name;
       document.getElementById('edit-cand-vision').value = cand.vision;
       document.getElementById('edit-cand-photo-file').value = '';
@@ -781,15 +787,17 @@
       document.getElementById('modal-edit-candidate').classList.add('hidden');
     }
 
-    // PROSES SIMPAN EDIT CALON DENGAN UPLOAD FOTO 350x450
+    // SIMPAN EDIT CALON DENGAN NOMOR URUT DAN FOTO BARU
     async function saveCandidateEdit(e) {
       e.preventDefault();
       const candId = document.getElementById('edit-cand-id').value;
       const fileInput = document.getElementById('edit-cand-photo-file');
+      const numVal = parseInt(document.getElementById('edit-cand-num').value) || 1;
       const db = getData();
       const cand = (db.candidates || []).find(c => c.id === candId);
 
       if (cand) {
+        cand.number = numVal;
         cand.name = document.getElementById('edit-cand-name').value.trim();
         cand.vision = document.getElementById('edit-cand-vision').value.trim();
 
@@ -830,7 +838,12 @@
       }
 
       allowedCategories.forEach(cat => {
-        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+        // Urutkan candidate berdasarkan nomor urut
+        const candidates = (db.candidates || [])
+          .filter(c => c.categoryId === cat.id)
+          .sort((a, b) => (a.number || 0) - (b.number || 0));
+
+        const nextNum = candidates.length > 0 ? (Math.max(...candidates.map(c => c.number || 0)) + 1) : 1;
 
         container.innerHTML += `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
@@ -845,11 +858,18 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               ${candidates.map(c => `
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3 relative">
                   <div class="flex items-start gap-3">
-                    <img src="${c.photo}" class="w-14 h-18 object-cover rounded-lg border aspect-[350/450]">
+                    <div class="relative flex-shrink-0">
+                      <img src="${c.photo}" class="w-14 h-18 object-cover rounded-lg border aspect-[350/450]">
+                      <span class="absolute -top-2 -left-2 bg-custom-gradient text-white text-[11px] font-extrabold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow">
+                        ${String(c.number || 1).padStart(2, '0')}
+                      </span>
+                    </div>
                     <div class="flex-1">
-                      <div class="font-bold text-sm text-slate-800">${c.name}</div>
+                      <div class="font-bold text-sm text-slate-800">
+                        <span class="text-custom-teal mr-1">#${c.number || 1}</span> ${c.name}
+                      </div>
                       <div class="text-xs text-slate-500 line-clamp-2 mt-0.5"><strong>Visi Misi:</strong> ${c.vision}</div>
                     </div>
                   </div>
@@ -866,11 +886,20 @@
             </div>
 
             <form onsubmit="addCandidate(event, '${cat.id}')" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
-              <span class="text-xs font-bold text-slate-600 uppercase">+ Tambah Calon Baru ke ${cat.name} (Foto 350x450 Portrait)</span>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <input type="text" name="candName" placeholder="Nama Calon" required class="px-3 py-2 text-xs rounded-lg border outline-none">
-                <input type="file" name="candPhotoFile" accept="image/*" required class="px-2 py-1.5 text-xs rounded-lg border outline-none bg-white text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal">
-                <input type="text" name="candVision" placeholder="Visi & Misi Ringkas" required class="px-3 py-2 text-xs rounded-lg border outline-none">
+              <span class="text-xs font-bold text-slate-600 uppercase">+ Tambah Calon Baru ke ${cat.name}</span>
+              <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <div>
+                  <input type="number" name="candNumber" placeholder="No. Urut" value="${nextNum}" min="1" required class="w-full px-3 py-2 text-xs rounded-lg border outline-none font-bold text-center">
+                </div>
+                <div>
+                  <input type="text" name="candName" placeholder="Nama Calon" required class="w-full px-3 py-2 text-xs rounded-lg border outline-none">
+                </div>
+                <div>
+                  <input type="file" name="candPhotoFile" accept="image/*" required class="w-full px-2 py-1.5 text-xs rounded-lg border outline-none bg-white text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal">
+                </div>
+                <div>
+                  <input type="text" name="candVision" placeholder="Visi & Misi Ringkas" required class="w-full px-3 py-2 text-xs rounded-lg border outline-none">
+                </div>
               </div>
               <button type="submit" class="px-4 py-2 bg-custom-gradient text-white font-semibold rounded-lg text-xs">
                 + Upload & Simpan Calon Ke Cloud
@@ -1111,7 +1140,10 @@
       const allowedCategories = getAdminAllowedCategories();
 
       container.innerHTML = allowedCategories.map(cat => {
-        const candidates = (db.candidates || []).filter(c => c.categoryId === cat.id);
+        const candidates = (db.candidates || [])
+          .filter(c => c.categoryId === cat.id)
+          .sort((a, b) => (a.number || 0) - (b.number || 0));
+
         const eligibleVoters = (db.voters || []).filter(v => (v.assignedCategories || []).includes(cat.id));
         const totalEligible = eligibleVoters.length;
         const votedCount = eligibleVoters.filter(v => v.hasVoted).length;
@@ -1124,7 +1156,7 @@
           return `
             <div class="space-y-1.5">
               <div class="flex justify-between items-center text-sm font-semibold">
-                <span class="text-slate-800">${c.name}</span>
+                <span class="text-slate-800"><strong class="text-custom-teal">No. ${String(c.number || 1).padStart(2, '0')}</strong> - ${c.name}</span>
                 <span class="text-slate-600 font-mono">${c.votes || 0} Suara (${percentage}%)</span>
               </div>
               <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
