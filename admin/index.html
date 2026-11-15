@@ -321,7 +321,7 @@
           <input type="text" id="edit-cand-name" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ganti Foto Calon (Opsional)</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ganti Foto Calon (Ukuran 350x450 Portrait)</label>
           <input type="file" id="edit-cand-photo-file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal">
         </div>
         <div>
@@ -449,8 +449,8 @@
     let pendingAction = null;
     let currentAdminAccount = null;
 
-    // FUNGSI KOMPRESI & CONVERT GAMBAR KE BASE64
-    function convertFileToBase64(file, maxWidth = 400, quality = 0.75) {
+    // FUNGSI KOMPRESI & AUTO CROP KE 350x450 PIXEL PORTRAIT
+    function convertFileToBase64(file, targetWidth = 350, targetHeight = 450, quality = 0.8) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -459,19 +459,27 @@
           img.src = event.target.result;
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
 
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
+            // Hitung logika Center Crop agar foto tidak terdistorsi (gepeng)
+            const targetRatio = targetWidth / targetHeight;
+            const imgRatio = img.width / img.height;
+
+            let sourceX = 0, sourceY = 0, sourceWidth = img.width, sourceHeight = img.height;
+
+            if (imgRatio > targetRatio) {
+              // Gambar terlalu lebar
+              sourceWidth = img.height * targetRatio;
+              sourceX = (img.width - sourceWidth) / 2;
+            } else {
+              // Gambar terlalu tinggi
+              sourceHeight = img.width / targetRatio;
+              sourceY = (img.height - sourceHeight) / 2;
             }
 
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
+            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
             resolve(canvas.toDataURL('image/jpeg', quality));
           };
           img.onerror = (err) => reject(err);
@@ -724,7 +732,7 @@
       });
     }
 
-    // PROSES TAMBAH CALON DENGAN UPLOAD FOTO LANGSUNG
+    // PROSES TAMBAH CALON DENGAN UPLOAD FOTO 350x450
     async function addCandidate(e, catId) {
       e.preventDefault();
       const form = e.target;
@@ -736,7 +744,7 @@
 
       if (fileInput.files && fileInput.files[0]) {
         try {
-          photoBase64 = await convertFileToBase64(fileInput.files[0]);
+          photoBase64 = await convertFileToBase64(fileInput.files[0], 350, 450);
         } catch (err) {
           openConfirmModal("Gagal Upload Foto", "Gagal memproses file foto. Silakan coba file lain.", null, false);
           return;
@@ -773,7 +781,7 @@
       document.getElementById('modal-edit-candidate').classList.add('hidden');
     }
 
-    // PROSES SIMPAN EDIT CALON DENGAN UPLOAD FOTO BARU
+    // PROSES SIMPAN EDIT CALON DENGAN UPLOAD FOTO 350x450
     async function saveCandidateEdit(e) {
       e.preventDefault();
       const candId = document.getElementById('edit-cand-id').value;
@@ -787,7 +795,7 @@
 
         if (fileInput.files && fileInput.files[0]) {
           try {
-            cand.photo = await convertFileToBase64(fileInput.files[0]);
+            cand.photo = await convertFileToBase64(fileInput.files[0], 350, 450);
           } catch (err) {
             openConfirmModal("Gagal Upload Foto", "Gagal memproses foto baru.", null, false);
             return;
@@ -839,7 +847,7 @@
               ${candidates.map(c => `
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
                   <div class="flex items-start gap-3">
-                    <img src="${c.photo}" class="w-14 h-14 object-cover rounded-lg border">
+                    <img src="${c.photo}" class="w-14 h-18 object-cover rounded-lg border aspect-[350/450]">
                     <div class="flex-1">
                       <div class="font-bold text-sm text-slate-800">${c.name}</div>
                       <div class="text-xs text-slate-500 line-clamp-2 mt-0.5"><strong>Visi Misi:</strong> ${c.vision}</div>
@@ -858,7 +866,7 @@
             </div>
 
             <form onsubmit="addCandidate(event, '${cat.id}')" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
-              <span class="text-xs font-bold text-slate-600 uppercase">+ Tambah Calon Baru ke ${cat.name}</span>
+              <span class="text-xs font-bold text-slate-600 uppercase">+ Tambah Calon Baru ke ${cat.name} (Foto 350x450 Portrait)</span>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <input type="text" name="candName" placeholder="Nama Calon" required class="px-3 py-2 text-xs rounded-lg border outline-none">
                 <input type="file" name="candPhotoFile" accept="image/*" required class="px-2 py-1.5 text-xs rounded-lg border outline-none bg-white text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-custom-teal">
