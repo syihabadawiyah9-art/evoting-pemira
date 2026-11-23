@@ -108,8 +108,11 @@
         <button onclick="switchAdminMenu('voters')" id="admin-menu-btn-voters" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
           <i class="fa-solid fa-users"></i> 4. Voters & Import
         </button>
+        <button onclick="switchAdminMenu('attendance')" id="admin-menu-btn-attendance" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-user"></i> 5. Daftar Hadir
+        </button>
         <button onclick="switchAdminMenu('live')" id="admin-menu-btn-live" class="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2">
-          <i class="fa-solid fa-chart-line"></i> 5. Hasil Sementara
+          <i class="fa-solid fa-chart-line"></i> 6. Hasil Sementara
         </button>
       </div>
 
@@ -218,15 +221,19 @@
           <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
             <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Registrasi Pemilih Manual</h3>
             <form onsubmit="addVoter(event)" class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Pemilih</label>
                   <input type="text" id="input-voter-name" placeholder="Nama Lengkap" required class="w-full px-4 py-2.5 rounded-lg border outline-none text-sm">
                 </div>
                 <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kelas / Jabatan</label>
+                  <input type="text" id="input-voter-class" placeholder="Contoh: 7A / Guru" required class="w-full px-4 py-2.5 rounded-lg border outline-none text-sm">
+                </div>
+                <div>
                   <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Token Pemilih</label>
                   <div class="flex gap-2">
-                    <input type="text" id="input-voter-token-reg" placeholder="EV-XXXX" required class="w-full px-4 py-2.5 rounded-lg border outline-none text-sm font-mono uppercase">
+                    <input type="text" id="input-voter-token-reg" placeholder="EV-XXXX" required class="w-full px-3 py-2.5 rounded-lg border outline-none text-sm font-mono uppercase">
                     <button type="button" onclick="generateRandomToken()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold">
                       Acak
                     </button>
@@ -248,7 +255,7 @@
           <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
             <div>
               <h3 class="text-lg font-bold text-slate-800 border-b pb-2">Impor via Excel / CSV</h3>
-              <p class="text-xs text-slate-500 mt-2">Unggah data pemilih masal dengan format tabel: <strong>Nama;Alokasi Hak Suara;Token</strong>.</p>
+              <p class="text-xs text-slate-500 mt-2">Unggah data pemilih masal dengan format tabel: <strong>Nama;Kelas/Jabatan;Alokasi Hak Suara;Token</strong>.</p>
               
               <div class="mt-4 space-y-2">
                 <button onclick="downloadCSVTemplate()" class="w-full px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-300">
@@ -268,11 +275,14 @@
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-bold text-slate-800">Daftar Token Pemilih</h3>
-            <div class="flex items-center gap-2">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <h3 class="text-lg font-bold text-slate-800">Daftar Token Pemilih (DPT)</h3>
+            <div class="flex flex-wrap items-center gap-2">
               <span id="voter-count-badge" class="px-3 py-1 bg-custom-teal-light text-custom-teal text-xs font-bold rounded-full">Total: 0</span>
-              <button id="btn-delete-all-voters" onclick="deleteAllVoters()" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition">
+              <button onclick="exportDPTToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5">
+                <i class="fa-solid fa-file-excel"></i> Export CSV DPT
+              </button>
+              <button id="btn-delete-all-voters" onclick="deleteAllVoters()" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition">
                 <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Pemilih
               </button>
             </div>
@@ -283,6 +293,7 @@
               <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
                 <tr>
                   <th class="p-3">Nama Pemilih</th>
+                  <th class="p-3">Kelas / Jabatan</th>
                   <th class="p-3">Token</th>
                   <th class="p-3">Hak Surat Suara</th>
                   <th class="p-3">Status Voting</th>
@@ -295,7 +306,39 @@
         </div>
       </div>
 
-      <!-- SUB-MENU 5: HASIL SEMENTARA ADMIN -->
+      <!-- SUB-MENU 5: DAFTAR HADIR (KEHADIRAN PEMILIH) -->
+      <div id="admin-sub-attendance" class="admin-sub-page hidden space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-4">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Daftar Hadir Pemilihan (Sudah Login/Memilih)</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Daftar pemilih dari DPT yang telah berhasil menggunakan hak suaranya di bilik suara.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="attendance-count-badge" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">Telah Hadir: 0</span>
+              <button onclick="exportAttendanceToCSV()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-file-excel"></i> Export CSV Daftar Hadir
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
+                <tr>
+                  <th class="p-3 w-12 text-center">No</th>
+                  <th class="p-3">Nama Pemilih</th>
+                  <th class="p-3">Kelas / Jabatan</th>
+                  <th class="p-3 text-center">Status Kehadiran</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-MENU 6: HASIL SEMENTARA ADMIN -->
       <div id="admin-sub-live" class="admin-sub-page hidden space-y-6">
         <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between">
           <div>
@@ -345,10 +388,22 @@
   <!-- MODAL EDIT HAK AKSES VOTER -->
   <div id="modal-edit-voter" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white max-w-md w-full rounded-2xl shadow-xl p-6 space-y-4">
-      <h3 class="text-lg font-bold text-slate-900 border-b pb-2">Edit Hak Surat Suara Pemilih</h3>
-      <p id="modal-edit-voter-name" class="text-sm font-semibold text-custom-teal"></p>
+      <h3 class="text-lg font-bold text-slate-900 border-b pb-2">Edit Data Pemilih</h3>
       
-      <div id="modal-edit-category-checkboxes" class="space-y-2 bg-slate-50 p-3 rounded-lg border max-h-60 overflow-y-auto"></div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Pemilih</label>
+          <input type="text" id="modal-edit-voter-name" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kelas / Jabatan</label>
+          <input type="text" id="modal-edit-voter-class" required class="w-full px-3 py-2 rounded-lg border text-sm outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Hak Surat Suara</label>
+          <div id="modal-edit-category-checkboxes" class="space-y-2 bg-slate-50 p-3 rounded-lg border max-h-48 overflow-y-auto"></div>
+        </div>
+      </div>
 
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeEditVoterModal()" class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs">Batal</button>
@@ -446,8 +501,8 @@
         { id: "cand-2", categoryId: "cat-1", number: 2, name: "Budi Santoso", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300", vision: "Mengembangkan potensi kepemimpinan.", votes: 0 }
       ],
       voters: [
-        { name: "Ahmad Siswa", token: "EV-1001", hasVoted: false, assignedCategories: ["cat-1", "cat-2", "cat-4"] },
-        { name: "Anisa Siswi", token: "EV-1002", hasVoted: false, assignedCategories: ["cat-1", "cat-3", "cat-5"] }
+        { name: "Ahmad Siswa", voterClass: "7A", token: "EV-1001", hasVoted: false, assignedCategories: ["cat-1", "cat-2", "cat-4"] },
+        { name: "Anisa Siswi", voterClass: "8B", token: "EV-1002", hasVoted: false, assignedCategories: ["cat-1", "cat-3", "cat-5"] }
       ]
     };
 
@@ -582,7 +637,7 @@
 
     function switchAdminMenu(menu) {
       document.querySelectorAll('.admin-sub-page').forEach(p => p.classList.add('hidden'));
-      ['setting', 'datetime', 'ballot', 'voters', 'live'].forEach(b => {
+      ['setting', 'datetime', 'ballot', 'voters', 'attendance', 'live'].forEach(b => {
         const btn = document.getElementById(`admin-menu-btn-${b}`);
         if (btn) btn.className = "px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition hover:bg-slate-100 text-slate-600 flex items-center gap-2";
       });
@@ -594,6 +649,7 @@
       }
 
       if (menu === 'voters') renderVoterCategoryCheckboxes();
+      if (menu === 'attendance') renderAttendanceTable();
       if (menu === 'live') renderAdminLiveResults();
     }
 
@@ -611,6 +667,7 @@
       renderAdminCategoriesAndCandidates();
       renderVotersTable();
       renderVoterCategoryCheckboxes();
+      renderAttendanceTable();
       renderAdminLiveResults();
     }
 
@@ -838,7 +895,6 @@
       }
 
       allowedCategories.forEach(cat => {
-        // Urutkan candidate berdasarkan nomor urut
         const candidates = (db.candidates || [])
           .filter(c => c.categoryId === cat.id)
           .sort((a, b) => (a.number || 0) - (b.number || 0));
@@ -925,21 +981,25 @@
       });
     }
 
+    // REGISTRASI PEMILIH DENGAN KELAS / JABATAN
     function addVoter(e) {
       e.preventDefault();
       const name = document.getElementById('input-voter-name').value.trim();
+      const voterClass = document.getElementById('input-voter-class').value.trim();
       const token = document.getElementById('input-voter-token-reg').value.trim().toUpperCase();
       const db = getData();
 
       if (!db.voters) db.voters = [];
       const selectedScope = Array.from(document.querySelectorAll('input[name="voter-cat-scope"]:checked')).map(cb => cb.value);
 
-      db.voters.push({ name: name, token: token, hasVoted: false, assignedCategories: selectedScope });
+      db.voters.push({ name: name, voterClass: voterClass, token: token, hasVoted: false, assignedCategories: selectedScope });
       window.saveCloudData(db);
 
       document.getElementById('input-voter-name').value = '';
+      document.getElementById('input-voter-class').value = '';
       document.getElementById('input-voter-token-reg').value = '';
       renderVotersTable();
+      renderAttendanceTable();
     }
 
     function generateRandomToken() {
@@ -949,7 +1009,7 @@
     function downloadCSVTemplate() {
       const allowedCategories = getAdminAllowedCategories();
       const exampleCatName = allowedCategories.map(c => c.name).join(', ') || 'OSIS';
-      const csvContent = `data:text/csv;charset=utf-8,Nama;Alokasi Hak Suara;Token\nAhmad Siswa;${exampleCatName};EV-1001`;
+      const csvContent = `data:text/csv;charset=utf-8,Nama;Kelas/Jabatan;Alokasi Hak Suara;Token\nAhmad Siswa;7A;${exampleCatName};EV-1001`;
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -959,6 +1019,7 @@
       document.body.removeChild(link);
     }
 
+    // IMPOR CSV/EXCEL DENGAN KELAS / JABATAN
     function processCSVImport() {
       const fileInput = document.getElementById('input-file-csv');
       const file = fileInput.files[0];
@@ -983,10 +1044,11 @@
           const delimiter = lines[i].includes(';') ? ';' : ',';
           const cols = lines[i].split(delimiter);
           
-          if (cols.length >= 3) {
+          if (cols.length >= 4) {
             const name = cols[0].replace(/"/g, '').trim();
-            const scopeStr = cols[1].replace(/"/g, '').trim().toLowerCase();
-            const token = cols[2].replace(/"/g, '').trim().toUpperCase();
+            const voterClass = cols[1].replace(/"/g, '').trim();
+            const scopeStr = cols[2].replace(/"/g, '').trim().toLowerCase();
+            const token = cols[3].replace(/"/g, '').trim().toUpperCase();
 
             const assignedCats = [];
             allowedCategories.forEach(c => {
@@ -1004,7 +1066,7 @@
             });
 
             if (!db.voters.some(v => v.token === token)) {
-              db.voters.push({ name: name, token: token, hasVoted: false, assignedCategories: assignedCats });
+              db.voters.push({ name: name, voterClass: voterClass, token: token, hasVoted: false, assignedCategories: assignedCats });
               importedCount++;
             }
           }
@@ -1012,6 +1074,7 @@
 
         window.saveCloudData(db);
         renderVotersTable();
+        renderAttendanceTable();
         openConfirmModal("Berhasil Impor", `Berhasil memasukkan ${importedCount} pemilih baru dari file CSV ke Cloud!`, null, false);
       };
       reader.readAsText(file);
@@ -1023,6 +1086,7 @@
         db.voters = (db.voters || []).filter(v => v.token !== token);
         window.saveCloudData(db);
         renderVotersTable();
+        renderAttendanceTable();
       });
     }
 
@@ -1033,6 +1097,7 @@
         db.voters = [];
         window.saveCloudData(db);
         renderVotersTable();
+        renderAttendanceTable();
       });
     }
 
@@ -1052,7 +1117,7 @@
       tbody.innerHTML = '';
 
       if (filteredVoters.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada pemilih terdaftar untuk kategori Anda.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 text-xs">Belum ada pemilih terdaftar untuk kategori Anda.</td></tr>`;
         return;
       }
 
@@ -1065,6 +1130,7 @@
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50">
             <td class="p-3 font-semibold text-slate-800">${v.name}</td>
+            <td class="p-3 text-slate-600 font-medium">${v.voterClass || '-'}</td>
             <td class="p-3 font-mono font-bold text-custom-teal">${v.token}</td>
             <td class="p-3 max-w-xs">${catBadges}</td>
             <td class="p-3">
@@ -1074,7 +1140,7 @@
             </td>
             <td class="p-3 text-right space-x-2">
               <button onclick="openEditVoterModal('${v.token}')" class="text-custom-teal hover:underline font-semibold text-xs">
-                <i class="fa-solid fa-pen-to-square"></i> Edit Hak Suara
+                <i class="fa-solid fa-pen-to-square"></i> Edit
               </button>
               <button onclick="deleteSingleVoter('${v.token}')" class="text-red-500 hover:text-red-700 font-semibold text-xs">
                 <i class="fa-solid fa-trash-can"></i> Hapus
@@ -1085,12 +1151,95 @@
       });
     }
 
+    // EXPORT EXCEL/CSV UNTUK SELURUH DPT
+    function exportDPTToCSV() {
+      const db = getData();
+      const voters = db.voters || [];
+      if (voters.length === 0) {
+        openConfirmModal("Tidak Ada Data", "Belum ada pemilih terdaftar untuk diexport.", null, false);
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,No;Nama Pemilih;Kelas/Jabatan;Token;Hak Surat Suara;Status Voting\n";
+      
+      voters.forEach((v, index) => {
+        const assignedCats = (db.categories || []).filter(c => (v.assignedCategories || []).includes(c.id)).map(c => c.name).join(', ');
+        const status = v.hasVoted ? "Sudah Memilih" : "Belum Memilih";
+        csvContent += `${index + 1};"${v.name}";"${v.voterClass || '-'}";"${v.token}";"${assignedCats}";"${status}"\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "DPT_Pemilu_Raya_MTs_Al_Ishlah_2026.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // RENDER TAB 5: DAFTAR HADIR (YANG SUDAH LOGED IN / MEMILIH)
+    function renderAttendanceTable() {
+      const db = getData();
+      const tbody = document.getElementById('attendance-table-body');
+      if (!tbody) return;
+
+      const attendedVoters = (db.voters || []).filter(v => v.hasVoted);
+      document.getElementById('attendance-count-badge').innerText = `Telah Hadir: ${attendedVoters.length}`;
+      tbody.innerHTML = '';
+
+      if (attendedVoters.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Belum ada pemilih yang masuk / menggunakan hak suara.</td></tr>`;
+        return;
+      }
+
+      attendedVoters.forEach((v, index) => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 text-center font-bold text-slate-500">${index + 1}</td>
+            <td class="p-3 font-semibold text-slate-800">${v.name}</td>
+            <td class="p-3 font-medium text-slate-600">${v.voterClass || '-'}</td>
+            <td class="p-3 text-center">
+              <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold inline-flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Hadir & Memilih
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // EXPORT EXCEL/CSV KHUSUS DAFTAR HADIR
+    function exportAttendanceToCSV() {
+      const db = getData();
+      const attendedVoters = (db.voters || []).filter(v => v.hasVoted);
+      if (attendedVoters.length === 0) {
+        openConfirmModal("Tidak Ada Data", "Belum ada pemilih yang hadir untuk diexport.", null, false);
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,No;Nama Pemilih;Kelas/Jabatan;Status Kehadiran\n";
+      
+      attendedVoters.forEach((v, index) => {
+        csvContent += `${index + 1};"${v.name}";"${v.voterClass || '-'}";"Hadir & Memilih"\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "Daftar_Hadir_Pemilu_Raya_MTs_Al_Ishlah_2026.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     function openEditVoterModal(token) {
       const db = getData();
       selectedVoterForEdit = (db.voters || []).find(v => v.token === token);
       if (!selectedVoterForEdit) return;
 
-      document.getElementById('modal-edit-voter-name').innerText = `${selectedVoterForEdit.name} (${selectedVoterForEdit.token})`;
+      document.getElementById('modal-edit-voter-name').value = selectedVoterForEdit.name || '';
+      document.getElementById('modal-edit-voter-class').value = selectedVoterForEdit.voterClass || '';
+
       const container = document.getElementById('modal-edit-category-checkboxes');
       container.innerHTML = '';
 
@@ -1119,6 +1268,9 @@
       const db = getData();
       const voter = (db.voters || []).find(v => v.token === selectedVoterForEdit.token);
       if (voter) {
+        voter.name = document.getElementById('modal-edit-voter-name').value.trim();
+        voter.voterClass = document.getElementById('modal-edit-voter-class').value.trim();
+
         const checkedScopes = Array.from(document.querySelectorAll('input[name="edit-voter-cat-scope"]:checked')).map(cb => cb.value);
         if (isSuperAdmin()) {
           voter.assignedCategories = checkedScopes;
@@ -1128,6 +1280,7 @@
         }
         window.saveCloudData(db);
         renderVotersTable();
+        renderAttendanceTable();
       }
       closeEditVoterModal();
     }
